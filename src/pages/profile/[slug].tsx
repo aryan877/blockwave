@@ -1,7 +1,17 @@
-import { Avatar, Box, Button, Spinner, Text, VStack } from '@chakra-ui/react';
+import {
+  Avatar,
+  Box,
+  Button,
+  Flex,
+  Spinner,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { FaDog } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
+import { useAccount } from 'wagmi';
 import Posts from '../../../components/UserPosts';
 import { useNotification } from '../../../context/NotificationContext';
 import client from '../../../lib/sanityFrontendClient';
@@ -23,10 +33,13 @@ function Profile() {
   const [isLoadingPosts, setIsLoadingPosts] = useState(true);
   const slug = router.query.slug;
   const { addNotification } = useNotification();
+  const { address } = useAccount();
 
   useEffect(() => {
     const getUserAndPosts = async () => {
       try {
+        setIsLoadingPosts(true);
+        setIsLoadingUser(true);
         //  Get the user by slug
         const userQuery = `*[ _type == "users" && _id == $slug ][0]`;
         const user = await client.fetch(userQuery, { slug });
@@ -48,7 +61,7 @@ function Profile() {
       }
     };
     getUserAndPosts();
-  }, []);
+  }, [slug]);
 
   // if (isLoading) {
   //   return (
@@ -78,13 +91,26 @@ function Profile() {
         </Box>
       )}
       <Text fontSize="xl" mt="8" fontWeight="bold">
-        My Posts
+        {slug === address ? 'My Posts' : 'All Posts'}
       </Text>
 
-      {!isLoadingPosts && posts ? (
-        <VStack alignItems="start" spacing="4">
-          <Posts posts={posts} user={user} />
-        </VStack>
+      {!isLoadingPosts ? (
+        <>
+          {posts.length > 0 ? (
+            <VStack alignItems="start" spacing="4">
+              <Posts posts={posts} user={user} />
+            </VStack>
+          ) : (
+            <VStack justifyContent="center" alignItems="center" height="200px">
+              <Box as={FaDog} size="8rem" color="gray.500" />
+              <Text fontSize="lg" fontWeight="medium" color="gray.500" ml="4">
+                {slug === address
+                  ? "It looks like you haven't made any posts yet."
+                  : "It looks like this user hasn't made any posts yet."}
+              </Text>
+            </VStack>
+          )}
+        </>
       ) : (
         <Box display="flex" justifyContent="center" alignItems="center">
           <Spinner size="xl" color="gray.500" />

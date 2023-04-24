@@ -13,6 +13,7 @@ const Home = () => {
   useEffect(() => {
     const getPosts = async () => {
       try {
+        setIsLoading(true);
         const query = `*[ _type == "posts"]{
           ...,
           _id,
