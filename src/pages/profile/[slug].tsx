@@ -9,8 +9,8 @@ import {
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { FaDog } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
+import { SiDatadog } from 'react-icons/si';
 import { useAccount } from 'wagmi';
 import Posts from '../../../components/UserPosts';
 import { useNotification } from '../../../context/NotificationContext';
@@ -102,7 +102,7 @@ function Profile() {
             </VStack>
           ) : (
             <VStack justifyContent="center" alignItems="center" height="200px">
-              <Box as={FaDog} size="8rem" color="gray.500" />
+              <Box as={SiDatadog} size="8rem" color="gray.500" />
               <Text fontSize="lg" fontWeight="medium" color="gray.500" ml="4">
                 {slug === address
                   ? "It looks like you haven't made any posts yet."
