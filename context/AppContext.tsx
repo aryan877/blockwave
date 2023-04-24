@@ -53,7 +53,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       // setAppStatus('connected');
     } catch (error) {
       console.log(error);
-      router.push('/');
+      // router.push('/');
       // setAppStatus('error');
     }
   };
