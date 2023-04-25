@@ -1,7 +1,7 @@
 import { Box, Flex, Spinner } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import Posts from '../../components/FeedPosts';
 import PostBox from '../../components/PostBox';
+import Posts from '../../components/Posts';
 import { useNotification } from '../../context/NotificationContext';
 import client from '../../lib/sanityFrontendClient';
 
@@ -16,12 +16,9 @@ const Home = () => {
         setIsLoading(true);
         const query = `*[ _type == "posts"]{
           ...,
-          _id,
-          timestamp,
           author->{
             ...
           },
-          postImage
         }`;
 
         const result = await client.fetch(query);

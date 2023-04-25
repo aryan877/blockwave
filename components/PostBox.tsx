@@ -8,58 +8,102 @@ import {
   InputLeftElement,
   Tooltip,
 } from '@chakra-ui/react';
+import axios from 'axios';
 import React, { useState } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 import { IoImagesOutline } from 'react-icons/io5';
 import { MdClose } from 'react-icons/md';
+import { useSignMessage } from 'wagmi';
+import { useNotification } from '../context/NotificationContext';
 interface Props {}
 
 const PostBox: React.FC<Props> = () => {
   const [value, setValue] = useState('');
-  // const [file, setFile] = useState<File | undefined>(undefined);
+  const [file, setFile] = useState<File | undefined>(undefined);
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+  const { addNotification } = useNotification();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const { signMessage } = useSignMessage({
+    onSuccess: async (data, variables) => {
+      // Verify signature when sign message succeeds
+      // const address = verifyMessage(variables.message, data);
+      // recoveredAddress.current = address;
+      const formData = new FormData();
+      if (file) {
+        formData.append('image', file);
+      }
+      if (value) {
+        formData.append('text', value);
+      }
+      if (!file && !value) {
+        addNotification({
+          status: 'error',
+          title: 'Add Post Data',
+          description: 'You need to enter either text or image',
+        });
+        return;
+      }
+      //send signature along with current user address to authorize on backend
+      axios
+        .post('/api/post/create', formData)
+        .then(() => {
+          addNotification({
+            status: 'success',
+            title: 'Post Created',
+            description: 'Refresh to see',
+          });
+          //remove file
+          setImageUrl(undefined);
+          setFile(undefined);
+          const fileInput = document.getElementById(
+            'fileInput'
+          ) as HTMLInputElement;
+          fileInput.value = '';
+          //reset value
+          setValue('');
+        })
+        .catch((error) => {
+          addNotification({
+            status: 'error',
+            title: 'Error',
+            description: error.message,
+          });
+        });
+    },
+  });
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    // Read the uploaded image file and set its data URL as the image URL
-    // if (file) {
-    //   const reader = new FileReader();
-    //   reader.onload = (event) => {
-    //     setImageUrl(event.target?.result as string);
-    //   };
-    //   reader.readAsDataURL(file);
-    // }
+    signMessage({ message: process.env.NEXT_PUBLIC_WEB3_KEY as string });
   };
 
   const handleRemoveImage = () => {
     setImageUrl(undefined);
+    setFile(undefined);
     const fileInput = document.getElementById('fileInput') as HTMLInputElement;
     fileInput.value = '';
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files && files.length > 0) {
+    if (files) {
       const file = files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setImageUrl(event.target?.result as string);
-        };
-        reader.readAsDataURL(file);
+        setFile(file);
+        setImageUrl(URL.createObjectURL(file));
       }
     }
   };
 
   return (
     <Container
-      backgroundColor="gray.700"
+      backgroundColor="gray.900"
       display="flex"
       p="4"
       width="full"
       maxWidth="2xl"
       borderRadius="md"
+      borderWidth="1px"
       alignItems="start"
       justifyItems="start"
     >
@@ -68,10 +112,12 @@ const PostBox: React.FC<Props> = () => {
         <InputGroup>
           <Input
             type="text"
-            placeholder="What's on your mind?"
+            placeholder="Share your thoughts"
             value={value}
             size="lg"
             mb="4"
+            focusBorderColor="pink.400"
+            _placeholder={{ color: 'gray.500' }}
             variant="flushed"
             onChange={(event) => setValue(event.target.value)}
           />

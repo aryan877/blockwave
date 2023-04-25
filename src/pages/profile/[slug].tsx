@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 import { SiDatadog } from 'react-icons/si';
 import { useAccount } from 'wagmi';
-import Posts from '../../../components/UserPosts';
+import Posts from '../../../components/Posts';
 import { useNotification } from '../../../context/NotificationContext';
 import client from '../../../lib/sanityFrontendClient';
 
@@ -46,7 +46,12 @@ function Profile() {
         setUser(user);
         setIsLoadingUser(false);
         // Get all posts authored by the user
-        const postsQuery = `*[ _type == "posts" && author._ref == $authorRef ]`;
+        const postsQuery = `*[ _type == "posts" && author._ref == $authorRef ]{
+          ...,
+          author->{
+            ...
+          }
+        }`;
         const posts = await client.fetch(postsQuery, { authorRef: user._id });
         setPosts(posts);
         setIsLoadingPosts(false);
@@ -98,7 +103,7 @@ function Profile() {
         <>
           {posts.length > 0 ? (
             <VStack alignItems="start" spacing="4">
-              <Posts posts={posts} user={user} />
+              <Posts posts={posts} />
             </VStack>
           ) : (
             <VStack justifyContent="center" alignItems="center" height="200px">

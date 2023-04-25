@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import client from '../../../lib/sanityBackendClient';
+import client from '../../../../lib/sanityBackendClient';
 
 interface NewUser {
   _type: 'users';
@@ -49,10 +49,9 @@ export default async function createUser(
     const userDoc: NewUser = {
       _type: 'users',
       _id: address,
-      name: `new user #${count + 1}`,
+      name: `user #${count + 1}`,
       isProfileImageNft: false,
-      profileImage:
-        'https://about.twitter.com/content/dam/about-twitter/en/brand-toolkit/brand-download-img-1.jpg.twimg.1920.jpg',
+      profileImage: `https://api.dicebear.com/6.x/adventurer/svg?seed=${address}`,
       walletAddress: address,
     };
 
@@ -67,6 +66,6 @@ export default async function createUser(
     });
   } catch (error) {
     console.error('Error creating user', error);
-    res.status(500).json({ title: 'Error', message: 'Error creating user' });
+    res.status(500).json({ message: 'Error creating user' });
   }
 }

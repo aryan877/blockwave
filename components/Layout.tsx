@@ -23,10 +23,10 @@ import WalletNotConnected from './WalletNotConnected';
 
 const Layout = ({ children }: PropsWithChildren) => {
   const { address, status } = useAccount();
-  const { connect } = useConnect({
-    connector: new InjectedConnector(),
-  });
-  const { disconnect } = useDisconnect();
+  // const { connect } = useConnect({
+  //   connector: new InjectedConnector(),
+  // });
+  // const { disconnect } = useDisconnect();
 
   let app;
 
@@ -59,7 +59,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         px={4}
         py={2}
         top="0"
-        bg="gray.700"
+        bg="gray.900"
       >
         <Link href="/">
           <Text fontSize="2xl" fontWeight="bold">
@@ -79,10 +79,10 @@ const Layout = ({ children }: PropsWithChildren) => {
               >
                 {address.slice(0, 6)}....{address.slice(-6)}
               </MenuButton>
-              <MenuList bg="gray.700" color="white">
+              <MenuList bg="gray.900" color="white">
                 <MenuItem
                   _hover={{ bg: 'gray.600', cursor: 'pointer' }}
-                  onClick={() => disconnect()}
+                  // onClick={() => disconnect()}
                 >
                   Disconnect
                 </MenuItem>
@@ -90,13 +90,14 @@ const Layout = ({ children }: PropsWithChildren) => {
             </Menu>
           ) : (
             <Button
-              onClick={() => connect()}
+              // onClick={() => connect()}
+
               variant="custom"
               backgroundColor="pink.400"
               rounded="full"
               mr={3}
             >
-              Connect Wallet <AiOutlineArrowRight className="ms-1" />
+              Sign In With Ethereum <AiOutlineArrowRight className="ms-1" />
             </Button>
           )}
         </Flex>

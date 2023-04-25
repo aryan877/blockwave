@@ -14,7 +14,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // const [appStatus, setAppStatus] = useState('');
   // const [currentAccount, setCurrentAccount] = useState('');
   // const [currentUser, setCurrentUser] = useState({});
-  const [tweets, setTweets] = useState([]);
+  // const [tweets, setTweets] = useState([]);
   const { addNotification } = useNotification();
   const router = useRouter();
   const { address, status } = useAccount();
@@ -44,17 +44,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (!address) return;
 
     try {
-      const res = await axios.post('/api/create_user', { address });
+      const res = await axios.post('/api/user/create', { address });
       addNotification({
         status: 'success',
         title: res.data.title,
         description: res.data.message,
       });
-      // setAppStatus('connected');
     } catch (error) {
-      console.log(error);
-      // router.push('/');
-      // setAppStatus('error');
+      addNotification({
+        status: 'error',
+        title: 'Error',
+        description: (error as Error).message,
+      });
     }
   };
 
@@ -155,16 +156,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AppContext.Provider
-      value={{
-        // appStatus,
-        // currentAccount,
-        tweets,
-        // fetchTweets,
-        // setAppStatus,
-        // getNftProfileImage,
-        // currentUser,
-        // getCurrentUserDetails,
-      }}
+      value={
+        {
+          // appStatus,
+          // currentAccount,
+          // tweets,
+          // fetchTweets,
+          // setAppStatus,
+          // getNftProfileImage,
+          // currentUser,
+          // getCurrentUserDetails,
+        }
+      }
     >
       {children}
     </AppContext.Provider>
