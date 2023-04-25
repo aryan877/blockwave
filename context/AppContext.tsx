@@ -23,17 +23,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     connector: new InjectedConnector(),
   });
 
-  useEffect(() => {
-    connect();
-  }, []);
+  // useEffect(() => {
+  //   connect();
+  // }, []);
 
-  useEffect(() => {
-    if (!address) return;
-    createUserAccount();
-    // getCurrentUserDetails(address);
-    // fetchTweets();
-  }, [address]);
-  // }, [currentAccount, appStatus]);
+  // useEffect(() => {
+  //   if (!address) return;
+  //   createUserAccount();
+  //   // getCurrentUserDetails(address);
+  //   // fetchTweets();
+  // }, [address]);
 
   /**
    * Creates an account in Sanity DB if the user does not already have one

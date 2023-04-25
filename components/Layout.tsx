@@ -10,9 +10,17 @@ import {
   Text,
 } from '@chakra-ui/react';
 import Link from 'next/link';
-import React, { PropsWithChildren, useEffect } from 'react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { AiOutlineArrowRight, AiOutlineCaretDown } from 'react-icons/ai';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { SiweMessage } from 'siwe';
+import {
+  useAccount,
+  useConnect,
+  useDisconnect,
+  useEnsName,
+  useNetwork,
+  useSignMessage,
+} from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { AppContext } from '../context/AppContext';
 import Loader from './Loader';
@@ -20,13 +28,63 @@ import NoMetaMask from './NoMetaMask';
 import Sidebar from './Sidebar';
 import WalletError from './WalletError';
 import WalletNotConnected from './WalletNotConnected';
-
 const Layout = ({ children }: PropsWithChildren) => {
-  const { address, status } = useAccount();
-  // const { connect } = useConnect({
-  //   connector: new InjectedConnector(),
-  // });
-  // const { disconnect } = useDisconnect();
+  const { address: connectedAddress, status } = useAccount();
+  const { connect } = useConnect({
+    connector: new InjectedConnector(),
+  });
+  const { disconnect } = useDisconnect();
+  const { chain, chains } = useNetwork();
+
+  const [state, setState] = useState<{
+    address?: string;
+    error?: Error;
+    loading?: boolean;
+  }>({});
+
+  const signIn = async () => {
+    try {
+      // const address = account?.address;
+      // const chainId = activeChain?.id;
+      if (!connectedAddress && !chain) return alert('No account');
+      const { signMessageAsync } = useSignMessage();
+      // set loading to true
+      setState((x) => ({ ...x, error: undefined, loading: true }));
+
+      // Fetch random nonce, create SIWE message, and sign with wallet
+      const nonceRes = await fetch('/api/nonce');
+      const message = new SiweMessage({
+        domain: window.location.host,
+        address: connectedAddress,
+        statement: 'Sign in with Ethereum to the app.',
+        uri: window.location.origin,
+        version: '1',
+        chainId: chain?.id,
+        nonce: await nonceRes.text(),
+      });
+      const signature = await signMessageAsync({
+        message: message.prepareMessage(),
+      });
+      if (!signature) throw Error('Signature is empty');
+
+      // Verify signature
+      const verifyRes = await fetch('/api/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message, signature }),
+      });
+      if (!verifyRes.ok) throw new Error('Error verifying message');
+
+      // update the state with the address and set loading to false
+      setState((x) => ({ ...x, connectedAddress, loading: false }));
+
+      // @ts-expect-error we are assigning a type to error
+    } catch (error: Error) {
+      setState((x) => ({ ...x, error, loading: false }));
+    }
+  };
 
   let app;
 
@@ -64,45 +122,47 @@ const Layout = ({ children }: PropsWithChildren) => {
         <Link href="/">
           <Text fontSize="2xl" fontWeight="bold">
             App
+            {state.address}
           </Text>
         </Link>
         <Flex alignItems="center">
           {status === 'connected' ? (
-            <Menu>
-              <MenuButton
-                as={Button}
-                variant="outline"
-                rounded="full"
-                mr={3}
-                _hover={{ cursor: 'pointer' }}
-                rightIcon={<AiOutlineCaretDown />}
-              >
-                {address.slice(0, 6)}....{address.slice(-6)}
-              </MenuButton>
-              <MenuList bg="gray.900" color="white">
-                <MenuItem
-                  _hover={{ bg: 'gray.600', cursor: 'pointer' }}
-                  // onClick={() => disconnect()}
-                >
-                  Disconnect
-                </MenuItem>
-              </MenuList>
-            </Menu>
+            <>Connected but not logged in </>
+          ) : // <Menu>
+          //   <MenuButton
+          //     as={Button}
+          //     variant="outline"
+          //     rounded="full"
+          //     mr={3}
+          //     _hover={{ cursor: 'pointer' }}
+          //     rightIcon={<AiOutlineCaretDown />}
+          //   >
+          //     {connectedAddress.slice(0, 6)}....{connectedAddress.slice(-6)}
+          //   </MenuButton>
+          //   <MenuList bg="gray.900" color="white">
+          //     <MenuItem
+          //       _hover={{ bg: 'gray.600', cursor: 'pointer' }}
+          //       onClick={() => disconnect()}
+          //     >
+          //       Disconnect
+          //     </MenuItem>
+          //   </MenuList>
+          // </Menu>
+
           ) : (
             <Button
-              // onClick={() => connect()}
-
+              onClick={() => connect()}
               variant="custom"
               backgroundColor="pink.400"
               rounded="full"
               mr={3}
             >
-              Sign In With Ethereum <AiOutlineArrowRight className="ms-1" />
+              Connect Wallet <AiOutlineArrowRight className="ms-1" />
             </Button>
           )}
         </Flex>
       </Flex>
-      {app}
+      {/* {app} */}
     </>
   );
 };
