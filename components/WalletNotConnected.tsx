@@ -5,6 +5,7 @@ function WalletNotConnected() {
   return (
     <Flex justifyContent="center" alignItems="center" height="100vh">
       <Box
+        mx={8}
         p={8}
         bg="gray.500"
         borderRadius="lg"

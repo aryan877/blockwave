@@ -29,6 +29,7 @@ function Sidebar() {
       width="275px"
       display={displaySidebar}
       pos="relative"
+      mr={8}
     >
       <Box pos="fixed">
         <Link href="/">

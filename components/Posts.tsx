@@ -10,10 +10,16 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import dayjs from 'dayjs';
+import 'dayjs/locale/en';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import Link from 'next/link';
 import { useState } from 'react';
-import { FaHeart } from 'react-icons/fa';
+import { AiOutlineHeart } from 'react-icons/ai';
 import { format } from 'timeago.js';
+
+dayjs.locale('en');
+dayjs.extend(relativeTime);
 
 export interface PostProps {
   text: string;
@@ -34,6 +40,20 @@ function Post({ post }: { post: PostProps }) {
     setIsLiked((prev) => !prev);
   };
 
+  const createdAt = dayjs(post._createdAt);
+
+  let createdAtFormatted;
+  if (dayjs().diff(createdAt, 'day') >= 1) {
+    createdAtFormatted = createdAt.format('MMMM D, YYYY');
+  } else {
+    createdAtFormatted = createdAt.fromNow();
+    createdAtFormatted = createdAtFormatted.replace(' ago', '');
+    createdAtFormatted = createdAtFormatted.replace(/(\d+) days?/, '$1d');
+    createdAtFormatted = createdAtFormatted.replace(/(\d+) hours?/, '$1h');
+    createdAtFormatted = createdAtFormatted.replace(/(\d+) minutes?/, '$1m');
+    createdAtFormatted = createdAtFormatted.replace(/(\d+) seconds?/, '$1s');
+  }
+
   return (
     <Flex bg="gray.900" borderRadius="md" borderWidth="1px" p={4} align="start">
       <Link href={`/profile/${post.author?.walletAddress}`}>
@@ -46,14 +66,23 @@ function Post({ post }: { post: PostProps }) {
               {post.author?.name}
             </Text>
           </Link>
-          <Text color="gray.500">
-            {format(new Date(post._createdAt).getTime())}
+          <Text color="gray.500" ml="1">
+            {createdAtFormatted}
           </Text>
+          <Box display={{ base: 'none', md: 'block' }}>
+            <Text color="gray.500">
+              &middot; @{post.author?.walletAddress?.slice(0, 6)}....
+              {post.author?.walletAddress?.slice(-6)}
+            </Text>
+          </Box>
+        </HStack>
+        <Box display={{ base: 'block', md: 'none' }} mt="2">
           <Text color="gray.500">
-            • @{post.author?.walletAddress?.slice(0, 6)}....
+            @{post.author?.walletAddress?.slice(0, 6)}....
             {post.author?.walletAddress?.slice(-6)}
           </Text>
-        </HStack>
+        </Box>
+
         <Text fontWeight="medium">{post.text}</Text>
 
         {post.postImage && (
@@ -71,7 +100,7 @@ function Post({ post }: { post: PostProps }) {
         <Flex justify="space-between" w="100%" alignItems="center">
           <HStack>
             <IconButton
-              icon={<FaHeart size={20} />}
+              icon={<AiOutlineHeart size={25} />}
               colorScheme={'red'}
               color={isLiked ? 'red.400' : 'white'}
               variant="unstyled"
@@ -79,10 +108,10 @@ function Post({ post }: { post: PostProps }) {
               _hover={{ color: 'red.400' }}
               onClick={toggleLike}
             />
-            <Text color="white"> {post.likes?.length || 0} liked </Text>{' '}
+            <Text color="white"> {post.likes?.length || 0}</Text>
           </HStack>
           <Text color="gray.500" cursor="pointer">
-            View all comments
+            View Comments
           </Text>
         </Flex>
       </VStack>
