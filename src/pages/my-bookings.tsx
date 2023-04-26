@@ -8,14 +8,14 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import React from 'react';
-function events() {
+function MyBookings() {
   return (
     <Box width="full" maxWidth="2xl" p={4}>
       <Text fontSize="xl" mt="8" fontWeight="bold">
-        All Events
+        Events You Booked
       </Text>
     </Box>
   );
 }
 
-export default events;
+export default MyBookings;

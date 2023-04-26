@@ -4,10 +4,17 @@ import {
   AiOutlineBell,
   AiOutlineCalendar,
   AiOutlineHome,
+  AiOutlinePlus,
+  AiOutlineProfile,
   AiOutlineUser,
 } from 'react-icons/ai';
+import { BiCalendarEvent } from 'react-icons/bi';
 import { FaTwitter } from 'react-icons/fa';
-import { IoTicketOutline } from 'react-icons/io5';
+import {
+  IoBookmarkOutline,
+  IoClipboardOutline,
+  IoTicketOutline,
+} from 'react-icons/io5';
 import { MdMailOutline } from 'react-icons/md';
 import { RiFileList3Line } from 'react-icons/ri';
 import { useAccount } from 'wagmi';
@@ -30,11 +37,19 @@ function Sidebar() {
         <Link href={`/profile/${address}`}>
           <SidebarLink icon={AiOutlineUser}>Profile</SidebarLink>
         </Link>
+
         <Link href="/events">
-          <SidebarLink icon={AiOutlineCalendar}>Events</SidebarLink>
+          <SidebarLink icon={AiOutlineCalendar}>Upcoming Events</SidebarLink>
         </Link>
-        <Link href="/events">
-          <SidebarLink icon={IoTicketOutline}>My Tickets</SidebarLink>
+        <Link href="/create-event">
+          <SidebarLink icon={AiOutlinePlus}>Create Event</SidebarLink>
+        </Link>
+        <Link href="/my-events">
+          <SidebarLink icon={BiCalendarEvent}>My Events</SidebarLink>
+        </Link>
+
+        <Link href="/my-bookings">
+          <SidebarLink icon={IoBookmarkOutline}>Booked Events</SidebarLink>
         </Link>
       </Box>
     </Box>
