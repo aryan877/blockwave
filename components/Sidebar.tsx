@@ -43,7 +43,7 @@ function Sidebar() {
           <SidebarLink icon={AiOutlineCalendar}>Upcoming Events</SidebarLink>
         </Link>
         <Link href="/create-event">
-          <SidebarLink icon={AiOutlinePlus}>Create Event</SidebarLink>
+          <SidebarLink icon={AiOutlinePlus}>Mint Event</SidebarLink>
         </Link>
         {/* <Link href="/my-events">
           <SidebarLink icon={BiCalendarEvent}>My Events</SidebarLink>

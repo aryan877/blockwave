@@ -39,7 +39,7 @@ function CreateEvent() {
           colorScheme="green"
           rightIcon={<AiOutlinePlus />}
         >
-          Create Your Event
+          Mint Your Event
         </Button>
         <Text fontSize="xl" mt={8} fontWeight="bold">
           Your Events (0)
@@ -68,7 +68,7 @@ function CreateEvent() {
             </ModalBody>
             <ModalFooter>
               <Button variant="solid" colorScheme="green" type="submit" mr={3}>
-                Create
+                Mint
               </Button>
               <Button variant="solid" colorScheme="green" onClick={onClose}>
                 Cancel
