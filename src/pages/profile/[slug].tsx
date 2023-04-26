@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Flex,
+  Image,
   Spinner,
   Text,
   VStack,
@@ -107,7 +108,7 @@ function Profile() {
             </VStack>
           ) : (
             <VStack justifyContent="center" alignItems="center" height="200px">
-              <Box as={SiDatadog} size="8rem" color="gray.500" />
+              <Image src="/bear.png" boxSize="8rem" />
               <Text fontSize="lg" fontWeight="medium" color="gray.500" ml="4">
                 {slug === address
                   ? "It looks like you haven't made any posts yet."

@@ -1,12 +1,14 @@
 import { ProtocolEnum, SpheronClient } from '@spheron/storage';
-import { rejects } from 'assert';
-import { verifyMessage } from 'ethers/lib/utils';
+// import { rejects } from 'assert';
+// import { verifyMessage } from 'ethers/lib/utils';
 import formidable from 'formidable';
 import fs from 'fs/promises';
+import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
 import path from 'path';
 import client from '../../../../lib/sanityBackendClient';
-const sphToken = process.env.NEXT_PUBLIC_SPHERON_TOKEN as string;
+import { ironOptions } from '../../../../utils';
+const sphToken = process.env.SPHERON_TOKEN as string;
 const sphClient = new SpheronClient({ token: sphToken });
 let currentlyUploaded = 0;
 interface NewPost {
@@ -16,7 +18,7 @@ interface NewPost {
     _type: 'reference';
     _ref: string; // _id of the author document
   };
-  likes: number;
+  likes: [] | null;
   postImage?: string;
 }
 
@@ -46,12 +48,12 @@ const readForm = (
   });
 };
 
-export default async function createPost(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const createPost = async (req: NextApiRequest, res: NextApiResponse) => {
   //verify wallet signature here, only if signature is valid then the user can post
 
+  if (!req.session.siwe?.address) {
+    return res.status(422).json({ message: 'Invalid token' });
+  }
   try {
     await fs.readdir(path.join(process.cwd() + '/public', '/images'));
   } catch (error) {
@@ -93,18 +95,33 @@ export default async function createPost(
       _type: 'posts',
       text: fields.text as string,
       postImage: postImage, // use the postImage variable in the postDoc
-      likes: 0,
+      likes: [],
       author: {
         _type: 'reference',
-        _ref: '0x1dd38Ed37ACEae4Db1a178C11c886Ed753Fd3b24',
+        _ref: req.session.siwe?.address as string,
       },
     };
     const result = await client.create<NewPost>(postDoc);
-    res.json({ result });
+    // Fetch the author document
+    const authorDoc = await client.fetch(
+      `*[_id == "${result.author._ref}"][0]`
+    );
+
+    // Update the author reference in the post document
+    const postWithAuthor = {
+      ...result,
+      author: authorDoc,
+    };
+
+    // Update the post document with the populated author reference
+    res.json({ postWithAuthor });
   } catch (error) {
     if (_files && _files.image && _files.image.filepath) {
       await fs.unlink(_files.image.filepath);
     }
+    console.log(error);
     res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
+
+export default withIronSessionApiRoute(createPost, ironOptions);

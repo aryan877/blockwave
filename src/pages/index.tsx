@@ -1,12 +1,13 @@
 import { Box, Flex, Spinner } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import PostBox from '../../components/PostBox';
-import Posts from '../../components/Posts';
+import Posts, { PostProps } from '../../components/Posts';
 import { useNotification } from '../../context/NotificationContext';
 import client from '../../lib/sanityFrontendClient';
 
 const Home = () => {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<PostProps[]>([]);
+  const [myPosts, setMyPosts] = useState<PostProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { addNotification } = useNotification();
 
@@ -21,7 +22,7 @@ const Home = () => {
           },
         }`;
 
-        const result = await client.fetch(query);
+        const result = await client.fetch<PostProps[]>(query);
         setPosts(result);
         setIsLoading(false);
       } catch (error) {
@@ -38,13 +39,16 @@ const Home = () => {
 
   return (
     <Box width="full" maxWidth="2xl">
-      <PostBox />
+      <PostBox setPosts={setMyPosts} />
       {isLoading ? (
         <Box display="flex" justifyContent="center" alignItems="center" mt={8}>
           <Spinner size="xl" color="gray.500" />
         </Box>
       ) : (
-        <Posts posts={posts} />
+        <>
+          <Posts posts={myPosts} />
+          <Posts posts={posts} />
+        </>
       )}
     </Box>
   );

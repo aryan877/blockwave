@@ -3,9 +3,11 @@ import {
   Button,
   Container,
   Flex,
+  Image,
   Input,
   InputGroup,
   InputLeftElement,
+  Spinner,
   Tooltip,
 } from '@chakra-ui/react';
 import axios from 'axios';
@@ -13,70 +15,75 @@ import React, { useState } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 import { IoImagesOutline } from 'react-icons/io5';
 import { MdClose } from 'react-icons/md';
-import { useSignMessage } from 'wagmi';
+// import { useSignMessage } from 'wagmi';
 import { useNotification } from '../context/NotificationContext';
-interface Props {}
+import { PostProps } from './Posts';
 
-const PostBox: React.FC<Props> = () => {
+export interface setPostProps {
+  setPosts: React.Dispatch<React.SetStateAction<PostProps[]>>;
+}
+
+const PostBox = ({ setPosts }: setPostProps) => {
   const [value, setValue] = useState('');
   const [file, setFile] = useState<File | undefined>(undefined);
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const { addNotification } = useNotification();
-
-  const { signMessage } = useSignMessage({
-    onSuccess: async (data, variables) => {
-      // Verify signature when sign message succeeds
-      // const address = verifyMessage(variables.message, data);
-      // recoveredAddress.current = address;
-      const formData = new FormData();
-      if (file) {
-        formData.append('image', file);
-      }
-      if (value) {
-        formData.append('text', value);
-      }
-      if (!file && !value) {
-        addNotification({
-          status: 'error',
-          title: 'Add Post Data',
-          description: 'You need to enter either text or image',
-        });
-        return;
-      }
-      //send signature along with current user address to authorize on backend
-      axios
-        .post('/api/post/create', formData)
-        .then(() => {
-          addNotification({
-            status: 'success',
-            title: 'Post Created',
-            description: 'Refresh to see',
-          });
-          //remove file
-          setImageUrl(undefined);
-          setFile(undefined);
-          const fileInput = document.getElementById(
-            'fileInput'
-          ) as HTMLInputElement;
-          fileInput.value = '';
-          //reset value
-          setValue('');
-        })
-        .catch((error) => {
-          addNotification({
-            status: 'error',
-            title: 'Error',
-            description: error.message,
-          });
-        });
-    },
-  });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    signMessage({ message: process.env.NEXT_PUBLIC_WEB3_KEY as string });
-  };
 
+    const formData = new FormData();
+    if (file) {
+      formData.append('image', file);
+    }
+    if (value) {
+      formData.append('text', value);
+    }
+    if (!file && !value) {
+      addNotification({
+        status: 'error',
+        title: 'Add Post Data',
+        description: 'You need to enter either text or image',
+      });
+      return;
+    }
+    setIsLoading(true);
+    //send signature along with current user address to authorize on backend
+    axios
+      .post('/api/post/create', formData)
+      .then((res) => {
+        console.log(res);
+        setPosts((prevPosts: PostProps[]) => {
+          return [{ ...res.data.postWithAuthor }, ...prevPosts];
+        });
+        addNotification({
+          status: 'success',
+          title: 'Post Created',
+          description: '',
+        });
+        //remove file
+        setImageUrl(undefined);
+        setFile(undefined);
+        const fileInput = document.getElementById(
+          'fileInput'
+        ) as HTMLInputElement;
+        fileInput.value = '';
+        //reset value
+        setValue('');
+      })
+      .catch((error) => {
+        console.log(error);
+        addNotification({
+          status: 'error',
+          title: 'Error',
+          description: error.message,
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
   const handleRemoveImage = () => {
     setImageUrl(undefined);
     setFile(undefined);
@@ -149,19 +156,20 @@ const PostBox: React.FC<Props> = () => {
             type="submit"
             variant="custom"
             mt="2"
+            justifyContent="center"
+            alignItems="center"
             backgroundColor="pink.400"
             visibility={value || imageUrl ? 'visible' : 'hidden'}
+            disabled={isLoading} // Disable the button when loading is true
           >
-            Post
+            {isLoading ? <Spinner size="sm" /> : 'Post'}
           </Button>
         </Flex>
         {imageUrl && (
           <Box mt="4" position="relative">
-            <img
-              src={imageUrl}
-              alt="Uploaded Image"
-              style={{ maxWidth: '100%', width: '100%' }}
-            />
+            <Box w="100%" borderWidth="1px" borderRadius="md" overflow="hidden">
+              <Image src={imageUrl} w="full" h="full" objectFit="cover" />
+            </Box>
             <Box
               position="absolute"
               top="4"

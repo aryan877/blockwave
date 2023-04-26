@@ -18,10 +18,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const { addNotification } = useNotification();
   const router = useRouter();
   const { address, status } = useAccount();
-
-  const { connect } = useConnect({
-    connector: new InjectedConnector(),
-  });
+  // const { connect } = useConnect({
+  //   connector: new InjectedConnector(),
+  // });
 
   // useEffect(() => {
   //   connect();
@@ -39,24 +38,24 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
    * @param {String} userAddress Wallet address of the currently logged in user
    */
 
-  const createUserAccount = async () => {
-    if (!address) return;
+  // const createUserAccount = async () => {
+  //   if (!address) return;
 
-    try {
-      const res = await axios.post('/api/user/create', { address });
-      addNotification({
-        status: 'success',
-        title: res.data.title,
-        description: res.data.message,
-      });
-    } catch (error) {
-      addNotification({
-        status: 'error',
-        title: 'Error',
-        description: (error as Error).message,
-      });
-    }
-  };
+  //   try {
+  //     const res = await axios.post('/api/user/create', { address });
+  //     addNotification({
+  //       status: 'success',
+  //       title: res.data.title,
+  //       description: res.data.message,
+  //     });
+  //   } catch (error) {
+  //     addNotification({
+  //       status: 'error',
+  //       title: 'Error',
+  //       description: (error as Error).message,
+  //     });
+  //   }
+  // };
 
   /**
    * Generates NFT profile picture URL or returns the image URL if it's not an NFT

@@ -5,7 +5,7 @@ const config: ClientConfig = {
   useCdn: false,
   apiVersion: '2022-01-12',
   dataset: 'production',
-  token: process.env.NEXT_PUBLIC_SANITY_TOKEN,
+  token: process.env.SANITY_TOKEN,
 };
 
 const client: SanityClient = createClient(config);

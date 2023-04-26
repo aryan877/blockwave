@@ -4,20 +4,14 @@ import type { AppProps } from 'next/app';
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { polygonMumbai } from 'wagmi/chains';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { publicProvider } from 'wagmi/providers/public';
 import Layout from '../../components/Layout';
 import { AppProvider } from '../../context/AppContext';
 import { NotificationProvider } from '../../context/NotificationContext';
-// import { FreedomProvider } from '../../context/freedomContext';
 import theme from '../../theme';
-
 const { provider, webSocketProvider } = configureChains(
   [polygonMumbai],
-  [
-    alchemyProvider({
-      apiKey:
-        'https://polygon-mumbai.g.alchemy.com/v2/BLcAkwPlH6dx5GQQU5mp-SdT2BBZGxTV',
-    }),
-  ]
+  [publicProvider()]
 );
 
 const client = createClient({

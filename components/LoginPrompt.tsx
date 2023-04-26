@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 
-function NoMetaMask() {
+function LoginPrompt({ signIn }: { signIn: any }) {
   return (
     <Flex justifyContent="center" alignItems="center" height="100vh">
       <Box
@@ -27,21 +27,12 @@ function NoMetaMask() {
           mx="auto"
           mb={4}
         />
-        <Text fontSize="lg" fontWeight="bold" mb={2}>
-          You must install Metamask, a virtual Ethereum wallet, in your browser.
-        </Text>
-        <Text>
-          <a
-            href="https://metamask.io/download.html"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Click here to download Metamask.
-          </a>
-        </Text>
+        <Button onClick={signIn} fontSize="lg" fontWeight="bold" mb={2}>
+          Sign In With Ethereum
+        </Button>
       </Box>
     </Flex>
   );
 }
 
-export default NoMetaMask;
+export default LoginPrompt;

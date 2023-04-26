@@ -15,12 +15,12 @@ import { useState } from 'react';
 import { FaHeart } from 'react-icons/fa';
 import { format } from 'timeago.js';
 
-interface PostProps {
+export interface PostProps {
   text: string;
   _id: string;
   _createdAt: string;
   postImage: string;
-  likes: number;
+  likes: [] | null;
   author: {
     walletAddress: string;
     name: string;
@@ -36,22 +36,22 @@ function Post({ post }: { post: PostProps }) {
 
   return (
     <Flex bg="gray.900" borderRadius="md" borderWidth="1px" p={4} align="start">
-      <Link href={`/profile/${post.author.walletAddress}`}>
-        <Avatar size="md" src={post.author.profileImage} mr={4} />
+      <Link href={`/profile/${post.author?.walletAddress}`}>
+        <Avatar size="md" src={post.author?.profileImage} mr={4} />
       </Link>
       <VStack align="start" w="100%">
         <HStack w="100%">
-          <Link href={`/profile/${post.author.walletAddress}`}>
+          <Link href={`/profile/${post.author?.walletAddress}`}>
             <Text fontWeight="bold" _hover={{ textDecoration: 'underline' }}>
-              {post.author.name}
+              {post.author?.name}
             </Text>
           </Link>
           <Text color="gray.500">
             {format(new Date(post._createdAt).getTime())}
           </Text>
           <Text color="gray.500">
-            • @{post.author.walletAddress?.slice(0, 6)}....
-            {post.author.walletAddress?.slice(-6)}
+            • @{post.author?.walletAddress?.slice(0, 6)}....
+            {post.author?.walletAddress?.slice(-6)}
           </Text>
         </HStack>
         <Text fontWeight="medium">{post.text}</Text>
@@ -64,21 +64,22 @@ function Post({ post }: { post: PostProps }) {
               w="full"
               h="full"
               objectFit="cover"
+              placeholder="blur"
             />
           </Box>
         )}
         <Flex justify="space-between" w="100%" alignItems="center">
           <HStack>
             <IconButton
-              icon={<FaHeart />}
+              icon={<FaHeart size={20} />}
               colorScheme={'red'}
               color={isLiked ? 'red.400' : 'white'}
-              variant="ghost"
+              variant="unstyled"
               aria-label="Like"
               _hover={{ color: 'red.400' }}
               onClick={toggleLike}
             />
-            <Text color="white">{post.likes}</Text>{' '}
+            <Text color="white"> {post.likes?.length || 0} liked </Text>{' '}
           </HStack>
           <Text color="gray.500" cursor="pointer">
             View all comments
@@ -91,7 +92,7 @@ function Post({ post }: { post: PostProps }) {
 
 function Posts({ posts }: { posts: PostProps[] }) {
   return (
-    <VStack mt={4} spacing={4} align="stretch">
+    <VStack mt={4} spacing={4} width="full" align="stretch">
       {posts.map((post) => (
         <Post key={post._id} post={post} />
       ))}
