@@ -7,7 +7,7 @@ function WalletNotConnected() {
       <Box
         mx={8}
         p={8}
-        bg="gray.500"
+        bg="gray.900"
         borderRadius="lg"
         boxShadow="md"
         textAlign="center"

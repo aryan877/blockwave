@@ -14,7 +14,7 @@ function LoginPrompt({ signIn }: { signIn: any }) {
     <Flex justifyContent="center" alignItems="center" height="100vh">
       <Box
         p={8}
-        bg="pink.400"
+        bg="green.400"
         borderRadius="lg"
         mx={8}
         boxShadow="md"
@@ -31,6 +31,8 @@ function LoginPrompt({ signIn }: { signIn: any }) {
         <Button
           onClick={signIn}
           fontSize="lg"
+          variant="solid"
+          colorScheme="green"
           fontWeight="bold"
           mb={2}
           whiteSpace="initial"

@@ -123,7 +123,7 @@ const PostBox = ({ setPosts }: setPostProps) => {
             value={value}
             size="lg"
             mb="4"
-            focusBorderColor="pink.400"
+            focusBorderColor="green.400"
             _placeholder={{ color: 'gray.500' }}
             variant="flushed"
             onChange={(event) => setValue(event.target.value)}
@@ -136,7 +136,7 @@ const PostBox = ({ setPosts }: setPostProps) => {
               htmlFor="fileInput"
               variant="custom"
               cursor="pointer"
-              color="pink.400"
+              color="green.400"
               size="sm"
               minWidth="0"
               padding="0"
@@ -158,7 +158,7 @@ const PostBox = ({ setPosts }: setPostProps) => {
             mt="2"
             justifyContent="center"
             alignItems="center"
-            backgroundColor="pink.400"
+            backgroundColor="green.400"
             visibility={value || imageUrl ? 'visible' : 'hidden'}
             disabled={isLoading} // Disable the button when loading is true
           >

@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import Link from 'next/link';
+import Router, { useRouter } from 'next/router';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { AiOutlineArrowRight, AiOutlineCaretDown } from 'react-icons/ai';
 import { SiweMessage } from 'siwe';
@@ -45,7 +46,7 @@ const Layout = ({ children }: PropsWithChildren) => {
     error?: Error;
     loading?: boolean;
   }>({});
-
+  const router = useRouter();
   // const [boy, setBoy] = useState('');
   const { signMessageAsync } = useSignMessage();
 
@@ -113,6 +114,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         const res = await fetch('/api/me');
         const json = await res.json();
         setState((x) => ({ ...x, loggedInAddress: json.address }));
+        // router.replace('/');
       } catch (_error) {}
     };
     handler();
@@ -164,8 +166,8 @@ const Layout = ({ children }: PropsWithChildren) => {
               <Menu>
                 <MenuButton
                   as={Button}
-                  variant="custom"
-                  backgroundColor="pink.400"
+                  variant="solid"
+                  colorScheme="green"
                   rounded="full"
                   mr={3}
                   _hover={{ cursor: 'pointer' }}
@@ -197,10 +199,11 @@ const Layout = ({ children }: PropsWithChildren) => {
               <Menu>
                 <MenuButton
                   as={Button}
-                  variant="outline"
+                  variant="solid"
                   rounded="full"
+                  colorScheme="green"
                   //   variant="custom"
-                  //   backgroundColor="pink.400"
+                  //   backgroundColor="green.400"
                   mr={3}
                   _hover={{ cursor: 'pointer' }}
                   rightIcon={<AiOutlineCaretDown />}
@@ -221,8 +224,8 @@ const Layout = ({ children }: PropsWithChildren) => {
             //if not connected then show button to connect
             <Button
               onClick={() => connect()}
-              variant="custom"
-              backgroundColor="pink.400"
+              variant="solid"
+              colorScheme="green"
               rounded="full"
               mr={3}
             >

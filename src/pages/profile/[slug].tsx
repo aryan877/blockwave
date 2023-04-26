@@ -8,6 +8,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
@@ -84,7 +85,12 @@ function Profile() {
       {!isLoadingUser ? (
         <>
           <VStack alignItems="flex-start" my="4">
-            <Avatar size="2xl" name={user?.name} src={user?.profileImage} />
+            <Avatar
+              size="2xl"
+              name={user?.name}
+              src={user?.profileImage}
+              border="4px solid"
+            />
           </VStack>
           <Text fontSize="xl" fontWeight="bold">
             {user?.name}
@@ -107,13 +113,26 @@ function Profile() {
               <Posts posts={posts} />
             </VStack>
           ) : (
-            <VStack justifyContent="center" alignItems="center" height="200px">
-              <Image src="/bear.png" boxSize="8rem" />
-              <Text fontSize="lg" fontWeight="medium" color="gray.500" ml="4">
+            <VStack justifyContent="center" alignItems="center">
+              <Text
+                fontSize="lg"
+                fontWeight="medium"
+                color="gray.500"
+                textAlign="center"
+                mt="8"
+                mb="4"
+              >
                 {slug === address
                   ? "It looks like you haven't made any posts yet."
                   : "It looks like this user hasn't made any posts yet."}
               </Text>
+              {slug === address && (
+                <Link href="/">
+                  <Button variant="solid" colorScheme="green">
+                    Create a new post
+                  </Button>
+                </Link>
+              )}
             </VStack>
           )}
         </>

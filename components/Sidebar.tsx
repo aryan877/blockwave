@@ -45,9 +45,9 @@ function Sidebar() {
         <Link href="/create-event">
           <SidebarLink icon={AiOutlinePlus}>Create Event</SidebarLink>
         </Link>
-        <Link href="/my-events">
+        {/* <Link href="/my-events">
           <SidebarLink icon={BiCalendarEvent}>My Events</SidebarLink>
-        </Link>
+        </Link> */}
 
         <Link href="/my-bookings">
           <SidebarLink icon={IoBookmarkOutline}>Booked Events</SidebarLink>
