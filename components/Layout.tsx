@@ -146,7 +146,7 @@ const Layout = ({ children }: PropsWithChildren) => {
       <Flex
         pos="fixed"
         w="full"
-        zIndex="9999"
+        zIndex="999"
         alignItems="center"
         justifyContent="space-between"
         px={4}

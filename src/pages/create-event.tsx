@@ -48,7 +48,7 @@ function CreateEvent() {
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent mx={4} borderWidth="1px" bg="gray.900">
+        <ModalContent zIndex="9999999" mx={4} borderWidth="1px" bg="gray.900">
           <ModalHeader>Create Your Event</ModalHeader>
           <ModalCloseButton />
           <form onSubmit={handleSubmit}>
