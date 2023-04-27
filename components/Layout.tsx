@@ -3,6 +3,7 @@ import {
   Button,
   Container,
   Flex,
+  Image,
   Menu,
   MenuButton,
   MenuItem,
@@ -154,9 +155,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         bg="gray.900"
       >
         <Link href="/">
-          <Text fontSize="2xl" fontWeight="bold">
-            App
-          </Text>
+          <Image src="/logo.png" alt="Logo" width={50} mx="auto" />
         </Link>
         <Flex alignItems="center">
           {status === 'connected' ? (
