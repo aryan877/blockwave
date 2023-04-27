@@ -38,13 +38,14 @@ function Sidebar() {
         <Link href={`/profile/${address}`}>
           <SidebarLink icon={AiOutlineUser}>Profile</SidebarLink>
         </Link>
+        <Link href="/create-event">
+          <SidebarLink icon={AiOutlinePlus}>Mint Event</SidebarLink>
+        </Link>
 
         <Link href="/events">
           <SidebarLink icon={AiOutlineCalendar}>Upcoming Events</SidebarLink>
         </Link>
-        <Link href="/create-event">
-          <SidebarLink icon={AiOutlinePlus}>Mint Event</SidebarLink>
-        </Link>
+
         {/* <Link href="/my-events">
           <SidebarLink icon={BiCalendarEvent}>My Events</SidebarLink>
         </Link> */}

@@ -13,6 +13,10 @@ const { provider, webSocketProvider } = configureChains(
   [polygonMumbai],
   [publicProvider()]
 );
+// pages/_app.js
+import { Inter } from 'next/font/google';
+// If loading a variable font, you don't need to specify the font weight
+const inter = Inter({ subsets: ['latin'] });
 
 const client = createClient({
   autoConnect: false,
@@ -31,9 +35,11 @@ export default function App({ Component, pageProps }: AppProps) {
         <NotificationProvider>
           {/* <FreedomProvider> */}
           <AppProvider>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
+            <main className={inter.className}>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </main>
             {/* </FreedomProvider> */}
           </AppProvider>
         </NotificationProvider>
