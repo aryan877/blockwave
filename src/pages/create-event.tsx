@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 import { AiOutlinePlus } from 'react-icons/ai';
-import { FaPlus } from 'react-icons/fa';
+import { FaInfoCircle } from 'react-icons/fa';
 
 function CreateEvent() {
   // const { isOpen, onOpen, onClose } = useDisclosure();
@@ -35,6 +35,12 @@ function CreateEvent() {
         <Text fontSize="xl" my={4} fontWeight="bold">
           Create Your Own Event
         </Text>
+        <Box display="flex" alignItems="center" mb={4}>
+          <FaInfoCircle color="gray.500" />
+          <Text color="gray.500" ml={2}>
+            Please fill in the following fields to create your event.
+          </Text>
+        </Box>
         {/* <Button
           mt={8}
           // onClick={onOpen}
@@ -93,13 +99,10 @@ function CreateEvent() {
               placeholder="Enter price"
             />
           </FormControl>
-          <Box mt={8}>
-            <Button variant="solid" colorScheme="green" type="submit" mr={3}>
-              Mint
+          <Box mt={8} display="flex" justifyContent="flex-end">
+            <Button variant="solid" colorScheme="green" type="submit">
+              Mint Event
             </Button>
-            {/* <Button variant="solid" colorScheme="green">
-              Cancel
-            </Button> */}
           </Box>
         </form>
       </Box>

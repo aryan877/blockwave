@@ -155,7 +155,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         bg="gray.900"
       >
         <Link href="/">
-          <Image src="/logo.png" alt="Logo" width={50} mx="auto" />
+          <Image src="/textlogo.png" alt="Logo" width={100} mx="auto" />
         </Link>
         <Flex alignItems="center">
           {status === 'connected' ? (
@@ -187,6 +187,7 @@ const Layout = ({ children }: PropsWithChildren) => {
                         body: JSON.stringify({}), // add data if needed
                       });
                       setState({});
+                      router.replace('/');
                     }}
                   >
                     Logout

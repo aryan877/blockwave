@@ -2,7 +2,7 @@ import { Box, Icon, Text, useBreakpointValue } from '@chakra-ui/react';
 import Link from 'next/link';
 import {
   AiOutlineBell,
-  AiOutlineCalendar,
+  AiOutlineFire,
   AiOutlineHome,
   AiOutlinePlus,
   AiOutlineProfile,
@@ -10,14 +10,12 @@ import {
 } from 'react-icons/ai';
 import { BiCalendarEvent } from 'react-icons/bi';
 import { FaTwitter } from 'react-icons/fa';
-import {
-  IoBookmarkOutline,
-  IoClipboardOutline,
-  IoTicketOutline,
-} from 'react-icons/io5';
+import { IoClipboardOutline, IoTicketOutline } from 'react-icons/io5';
 import { MdMailOutline } from 'react-icons/md';
 import { RiFileList3Line } from 'react-icons/ri';
 import { useAccount } from 'wagmi';
+
+import { TiTicket } from 'react-icons/ti';
 
 function Sidebar() {
   const displaySidebar = useBreakpointValue({ base: 'none', md: 'block' });
@@ -43,15 +41,14 @@ function Sidebar() {
         </Link>
 
         <Link href="/events">
-          <SidebarLink icon={AiOutlineCalendar}>Upcoming Events</SidebarLink>
+          <SidebarLink icon={AiOutlineFire}>Buy Tickets</SidebarLink>
         </Link>
 
-        {/* <Link href="/my-events">
-          <SidebarLink icon={BiCalendarEvent}>My Events</SidebarLink>
-        </Link> */}
-
         <Link href="/my-bookings">
-          <SidebarLink icon={IoBookmarkOutline}>Booked Events</SidebarLink>
+          <SidebarLink icon={TiTicket}>Your Tickets</SidebarLink>
+        </Link>
+        <Link href="/my-events">
+          <SidebarLink icon={BiCalendarEvent}>Minted Events</SidebarLink>
         </Link>
       </Box>
     </Box>
