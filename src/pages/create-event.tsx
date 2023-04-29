@@ -495,7 +495,20 @@ function CreateEvent() {
               <Box display="flex" justifyContent="flex-end" mt={8}>
                 {!metaDataLink && (
                   <Button
-                    onClick={handleUpload}
+                    onClick={() => {
+                      formik.validateForm().then((errors) => {
+                        formik.setTouched(
+                          Object.keys(formik.values).reduce(
+                            (acc, key) => ({ ...acc, [key]: true }),
+                            {}
+                          )
+                        );
+                        formik.setErrors(errors);
+                        if (Object.keys(errors).length === 0) {
+                          handleUpload();
+                        }
+                      });
+                    }}
                     colorScheme="green"
                     isLoading={isLoading}
                   >

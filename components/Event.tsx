@@ -11,8 +11,32 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { FaClock } from 'react-icons/fa';
 
 function Event() {
+  const [countdown, setCountdown] = useState('');
+
+  useEffect(() => {
+    const endTime = new Date('2023-05-01T12:00:00');
+    const countdownInterval = setInterval(() => {
+      const endTime: Date = new Date('2023-05-01T12:00:00Z');
+      const diff: number = endTime.getTime() - new Date().getTime();
+
+      if (diff <= 0) {
+        clearInterval(countdownInterval);
+        setCountdown('Sale ended');
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / 1000 / 60) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+      setCountdown(`Sale ends in ${days}d ${hours}h ${minutes}m ${seconds}s`);
+    }, 1000);
+    return () => clearInterval(countdownInterval);
+  }, []);
+
   return (
     <Box
       w={{ base: '100%', md: '80%' }}
@@ -31,7 +55,11 @@ function Event() {
         objectFit="cover"
       />
 
-      <VStack px="6" py="4" spacing={4} align="stretch">
+      <VStack px="4" py="4" spacing={4} align="stretch">
+        <Button colorScheme="purple" rightIcon={<FaClock />}>
+          {countdown}
+        </Button>
+
         <Text
           color="gray.400"
           fontWeight="semibold"
