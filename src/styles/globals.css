@@ -26,3 +26,13 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+.react-datepicker__input-container input {
+  padding: 0.5rem;
+  border-radius: 4px !important;
+}
+.react-datepicker__time-list-item--selected,
+.react-datepicker__day--selected {
+  background-color: #48bb78 !important;
+  color: #fff;
+}

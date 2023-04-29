@@ -10,7 +10,7 @@ import {
 function MyEvents() {
   return (
     <Box width="full" maxWidth="2xl" p={4}>
-      <Text fontSize="xl" mt="8" fontWeight="bold">
+      <Text fontSize="xl" fontWeight="bold">
         Events You Created
       </Text>
     </Box>

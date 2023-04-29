@@ -36,7 +36,7 @@ const readForm = (
       return Date.now().toString() + '_' + path.originalFilename;
     };
   }
-  options.maxFileSize = 3000 * 1024 * 1024;
+  options.maxFileSize = 10000 * 1024 * 1024;
   const form = formidable(options);
   return new Promise((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
@@ -48,23 +48,23 @@ const readForm = (
 
 const createPost = async (req: NextApiRequest, res: NextApiResponse) => {
   //verify wallet signature here, only if signature is valid then the user can post
-  if (!req.session.siwe?.address) {
-    return res.status(422).json({ message: 'Invalid token' });
-  }
+
   try {
     if (req.method !== 'POST') {
       res.status(405).json({ message: 'Method not allowed' });
       return;
     }
     const { fields, files } = await readForm(req, true);
-    if (!fields.txt && !files.image) {
-      if (req.method !== 'POST') {
-        res.status(405).json({
-          message: 'image or text is required',
-        });
-        return;
-      }
+    if (!(req.session.siwe?.address === (fields.address as string))) {
+      return res.status(422).json({ message: 'Invalid token' });
     }
+
+    if (!fields.txt && !files.image) {
+      res.status(405).json({
+        message: 'image or text is required',
+      });
+    }
+
     let postImage = '';
     if (files.image) {
       const { uploadId, bucketId, protocolLink, dynamicLinks } =
@@ -108,3 +108,9 @@ const createPost = async (req: NextApiRequest, res: NextApiResponse) => {
 };
 
 export default withIronSessionApiRoute(createPost, ironOptions);
+
+
+
+
+
+

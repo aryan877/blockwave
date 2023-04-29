@@ -1,10 +1,18 @@
-import { Box, useToast } from '@chakra-ui/react';
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  CloseButton,
+  Flex,
+  Spinner,
+} from '@chakra-ui/react';
 import { createContext, ReactNode, useContext, useReducer } from 'react';
 
 interface Notification {
   status: 'info' | 'error' | 'success';
   title: string;
-  description: string;
+  description?: string;
+  autoClose?: boolean;
 }
 
 type NotificationAction =
@@ -46,24 +54,20 @@ export const NotificationProvider = ({
     notification: null,
   });
 
-  const toast = useToast();
-
   const addNotification = (notification: Notification) => {
     dispatch({ type: 'ADD_NOTIFICATION', payload: notification });
 
     // Remove notification after 4 seconds
-    setTimeout(() => {
-      dispatch({ type: 'REMOVE_NOTIFICATION' });
-    }, 4000);
-
-    toast({
-      title: notification.title,
-      description: notification.description,
-      status: notification.status,
-      duration: 2000,
-      isClosable: true,
-      position: 'bottom-left',
-    });
+    if (notification.autoClose) {
+      setTimeout(() => {
+        if (
+          notification.status === 'success' ||
+          notification.status === 'error'
+        ) {
+          dispatch({ type: 'REMOVE_NOTIFICATION' });
+        }
+      }, 4000);
+    }
   };
 
   const removeNotification = () => {
@@ -74,6 +78,35 @@ export const NotificationProvider = ({
     <NotificationContext.Provider
       value={{ addNotification, removeNotification }}
     >
+      {state.notification && (
+        <Box position="fixed" bottom={4} left={4} zIndex={999}>
+          <Alert
+            status={state.notification.status}
+            variant="solid"
+            flexDirection="row"
+            borderRadius="md"
+            boxShadow="md"
+            alignItems="flex-start"
+            pr={4}
+          >
+            {state.notification.status === 'info' ? (
+              <Spinner size="sm" mr={2} />
+            ) : (
+              <AlertIcon />
+            )}
+            <Box ml={2}>
+              <Box fontWeight="bold">{state.notification.title}</Box>
+              <Box>{state.notification.description}</Box>
+            </Box>
+            <CloseButton
+              size="sm"
+              onClick={removeNotification}
+              right="0px"
+              top="0px"
+            />
+          </Alert>
+        </Box>
+      )}
       {children}
     </NotificationContext.Provider>
   );

@@ -16,6 +16,7 @@ import { FaUserCircle } from 'react-icons/fa';
 import { IoImagesOutline } from 'react-icons/io5';
 import { MdClose } from 'react-icons/md';
 // import { useSignMessage } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { useNotification } from '../context/NotificationContext';
 import { PostProps } from './Posts';
 
@@ -29,6 +30,7 @@ const PostBox = ({ setPosts }: setPostProps) => {
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const { addNotification } = useNotification();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { address } = useAccount();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -40,20 +42,13 @@ const PostBox = ({ setPosts }: setPostProps) => {
     if (value) {
       formData.append('text', value);
     }
-    if (!file && !value) {
-      addNotification({
-        status: 'error',
-        title: 'Add Post Data',
-        description: 'You need to enter either text or image',
-      });
-      return;
-    }
+    formData.append('address', address as string);
+
     setIsLoading(true);
     //send signature along with current user address to authorize on backend
     axios
       .post('/api/post/create', formData)
       .then((res) => {
-        console.log(res);
         setPosts((prevPosts: PostProps[]) => {
           return [{ ...res.data.postWithAuthor }, ...prevPosts];
         });
@@ -61,6 +56,7 @@ const PostBox = ({ setPosts }: setPostProps) => {
           status: 'success',
           title: 'Post Created',
           description: '',
+          autoClose: true,
         });
         //remove file
         setImageUrl(undefined);
@@ -78,6 +74,7 @@ const PostBox = ({ setPosts }: setPostProps) => {
           status: 'error',
           title: 'Error',
           description: error.message,
+          autoClose: true,
         });
       })
       .finally(() => {
@@ -161,13 +158,15 @@ const PostBox = ({ setPosts }: setPostProps) => {
             backgroundColor="green.400"
             visibility={value || imageUrl ? 'visible' : 'hidden'}
             disabled={isLoading} // Disable the button when loading is true
+            isLoading={isLoading}
           >
-            {isLoading ? <Spinner size="sm" /> : 'Post'}
+            Post
+            {/* {isLoading ? <Spinner size="sm" /> : 'Post'} */}
           </Button>
         </Flex>
         {imageUrl && (
           <Box mt="4" position="relative">
-            <Box w="100%" borderWidth="1px" borderRadius="md" overflow="hidden">
+            <Box w="full" borderWidth="1px" borderRadius="md" overflow="hidden">
               <Image src={imageUrl} w="full" h="full" objectFit="cover" />
             </Box>
             <Box

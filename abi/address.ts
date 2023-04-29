@@ -1,1 +1,1 @@
-export const TicketFactory = '0x63d52f0a3d073735792358e7dd3d40a055eb4963';
+export const TicketFactory = '0xc8147De40b39939d10F0e21E3D0bC9f4438F6377';

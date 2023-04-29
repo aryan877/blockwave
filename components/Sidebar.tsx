@@ -9,6 +9,7 @@ import {
   AiOutlineUser,
 } from 'react-icons/ai';
 import { BiCalendarEvent } from 'react-icons/bi';
+import { BsTicket } from 'react-icons/bs';
 import { FaTwitter } from 'react-icons/fa';
 import { IoClipboardOutline, IoTicketOutline } from 'react-icons/io5';
 import { MdMailOutline } from 'react-icons/md';
@@ -41,14 +42,14 @@ function Sidebar() {
         </Link>
 
         <Link href="/events">
-          <SidebarLink icon={AiOutlineFire}>Buy Tickets</SidebarLink>
+          <SidebarLink icon={AiOutlineFire}>Browse Events</SidebarLink>
         </Link>
 
-        <Link href="/my-bookings">
-          <SidebarLink icon={TiTicket}>Your Tickets</SidebarLink>
+        <Link href="/my-tickets">
+          <SidebarLink icon={BsTicket}>My Tickets</SidebarLink>
         </Link>
         <Link href="/my-events">
-          <SidebarLink icon={BiCalendarEvent}>Minted Events</SidebarLink>
+          <SidebarLink icon={BiCalendarEvent}>My Events</SidebarLink>
         </Link>
       </Box>
     </Box>

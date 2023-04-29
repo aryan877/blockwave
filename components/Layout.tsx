@@ -96,6 +96,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         status: 'success',
         title: verifyRes.data.title,
         description: verifyRes.data.message,
+        autoClose: true,
       });
       // @ts-expect-error we are assigning a type to error
     } catch (error: Error) {
@@ -104,6 +105,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         status: 'error',
         title: 'Log In Failed',
         description: `Sign in was unsuccessful`,
+        autoClose: true,
       });
     }
   };
@@ -152,7 +154,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         px={4}
         py={2}
         top="0"
-        bg="gray.900"
+        bg="gray.700"
       >
         <Link href="/">
           <Image src="/textlogo.png" alt="Logo" width={100} mx="auto" />
@@ -234,7 +236,7 @@ const Layout = ({ children }: PropsWithChildren) => {
           )}
         </Flex>
       </Flex>
-      {app}
+      <Box mb={16}>{app}</Box>
     </>
   );
 };

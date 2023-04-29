@@ -16,7 +16,6 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import Link from 'next/link';
 import { useState } from 'react';
 import { AiOutlineHeart } from 'react-icons/ai';
-import { format } from 'timeago.js';
 
 dayjs.locale('en');
 dayjs.extend(relativeTime);

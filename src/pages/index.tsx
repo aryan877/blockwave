@@ -31,6 +31,7 @@ const Home = () => {
           status: 'error',
           title: 'An Error Occurred',
           description: 'Error occurred while fetching user data',
+          autoClose: true,
         });
       }
     };
