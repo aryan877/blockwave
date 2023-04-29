@@ -55,46 +55,46 @@ const uploadEventMetadata = async (
       });
       return;
     }
-    // let postImage = '';
-    // if (files.image) {
-    //   const { uploadId, bucketId, protocolLink, dynamicLinks } =
-    //     await sphClient.upload(`${files.image.filepath}`, {
-    //       protocol: ProtocolEnum.IPFS,
-    //       name: files.image.newFilename,
-    //       onUploadInitiated: (uploadId) => {},
-    //       onChunkUploaded: (uploadedSize, totalSize) => {
-    //         currentlyUploaded += uploadedSize;
-    //       },
-    //     });
-    //   postImage = `${protocolLink}/${files.image.newFilename}`; // set postImage to the uploaded image link
-    // }
-    // //SAVE JSON
-    // const fileName = `file-${Math.floor(Math.random() * 100000)}.json`;
-    // const metaData = {
-    //   name: fields.name,
-    //   description: fields.description,
-    //   image: postImage,
-    // };
+    let postImage = '';
+    if (files.image) {
+      const { uploadId, bucketId, protocolLink, dynamicLinks } =
+        await sphClient.upload(`${files.image.filepath}`, {
+          protocol: ProtocolEnum.IPFS,
+          name: files.image.newFilename,
+          onUploadInitiated: (uploadId) => {},
+          onChunkUploaded: (uploadedSize, totalSize) => {
+            currentlyUploaded += uploadedSize;
+          },
+        });
+      postImage = `${protocolLink}/${files.image.newFilename}`; // set postImage to the uploaded image link
+    }
+    //SAVE JSON
+    const fileName = `file-${Math.floor(Math.random() * 100000)}.json`;
+    const metaData = {
+      name: fields.name,
+      description: fields.description,
+      image: postImage,
+    };
 
-    // const filePath = join('/tmp', fileName);
-    // fs.writeFileSync(filePath, JSON.stringify(metaData));
-    // let postMetaData = '';
-    // if (fields.description && fields.name) {
-    //   const { uploadId, bucketId, protocolLink, dynamicLinks } =
-    //     await sphClient.upload(`${filePath}`, {
-    //       protocol: ProtocolEnum.IPFS,
-    //       name: fileName,
-    //       onUploadInitiated: (uploadId) => {},
-    //       onChunkUploaded: (uploadedSize, totalSize) => {
-    //         currentlyUploaded += uploadedSize;
-    //       },
-    //     });
-    //   postMetaData = `${protocolLink}/${fileName}`; // set postImage to the uploaded image link
-    // }
-    // res.status(201).json({ postMetaData });
-    setTimeout(() => {
-      res.json({ postMetaData: 'abcdkoii' });
-    }, 1000); // sleep for 2 seconds
+    const filePath = join('/tmp', fileName);
+    fs.writeFileSync(filePath, JSON.stringify(metaData));
+    let postMetaData = '';
+    if (fields.description && fields.name) {
+      const { uploadId, bucketId, protocolLink, dynamicLinks } =
+        await sphClient.upload(`${filePath}`, {
+          protocol: ProtocolEnum.IPFS,
+          name: fileName,
+          onUploadInitiated: (uploadId) => {},
+          onChunkUploaded: (uploadedSize, totalSize) => {
+            currentlyUploaded += uploadedSize;
+          },
+        });
+      postMetaData = `${protocolLink}/${fileName}`; // set postImage to the uploaded image link
+    }
+    res.status(201).json({ postMetaData });
+    // setTimeout(() => {
+    //   res.json({ postMetaData: 'abcdkoii' });
+    // }, 1000); // sleep for 2 seconds
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Internal server error' });

@@ -11,7 +11,7 @@ import React from 'react';
 function MyBookings() {
   return (
     <Box width="full" maxWidth="2xl" p={4}>
-      <Text fontSize="xl" fontWeight="bold">
+      <Text fontSize="xl" my={4} fontWeight="bold">
         My Tickets
       </Text>
     </Box>
