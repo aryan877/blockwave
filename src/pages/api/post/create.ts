@@ -50,19 +50,27 @@ const createPost = async (req: NextApiRequest, res: NextApiResponse) => {
   //verify wallet signature here, only if signature is valid then the user can post
 
   try {
+    if (!req.session.siwe?.address) {
+      return res.status(422).json({ message: 'Invalid token' });
+    }
+
     if (req.method !== 'POST') {
       res.status(405).json({ message: 'Method not allowed' });
       return;
     }
+
     const { fields, files } = await readForm(req, true);
+
     if (!(req.session.siwe?.address === (fields.address as string))) {
       return res.status(422).json({ message: 'Invalid token' });
     }
-
     if (!fields.txt && !files.image) {
-      res.status(405).json({
-        message: 'image or text is required',
-      });
+      if (req.method !== 'POST') {
+        res.status(405).json({
+          message: 'image or text is required',
+        });
+        return;
+      }
     }
 
     let postImage = '';
@@ -100,17 +108,11 @@ const createPost = async (req: NextApiRequest, res: NextApiResponse) => {
       ...result,
       author: authorDoc,
     };
-    res.json({ postWithAuthor });
+    return res.json({ postWithAuthor });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 export default withIronSessionApiRoute(createPost, ironOptions);
-
-
-
-
-
-

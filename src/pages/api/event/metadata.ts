@@ -42,18 +42,16 @@ const uploadEventMetadata = async (
   try {
     if (req.method !== 'POST') {
       res.status(405).json({ message: 'Method not allowed' });
-      return;
     }
     const { fields, files } = await readForm(req, true);
     if (!(req.session.siwe?.address === (fields.address as string))) {
-      return res.status(422).json({ message: 'Invalid token' });
+      res.status(422).json({ message: 'Invalid token' });
     }
 
     if (!fields.name || !fields.description || !files.image) {
       res.status(406).json({
         message: 'event image, name and description are required',
       });
-      return;
     }
     let postImage = '';
     if (files.image) {
