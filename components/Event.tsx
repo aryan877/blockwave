@@ -1,7 +1,11 @@
+import { Text } from '@chakra-ui/react';
 import React from 'react';
-
 function Event() {
-  return <div>Event</div>;
+  return (
+    <>
+      <Text>hi</Text>
+    </>
+  );
 }
 
 export default Event;

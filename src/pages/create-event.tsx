@@ -30,7 +30,6 @@ import { useNotification } from '../../context/NotificationContext';
 import metadata from './api/event/metadata';
 
 function CreateEvent() {
-  //function component starts here
   const roundOffToNearest15Minutes = (date: Date): Date => {
     const minutes = date.getMinutes();
     const roundedMinutes = Math.floor(minutes / 15) * 15;
@@ -66,7 +65,6 @@ function CreateEvent() {
     if (write) {
       setIsLoading(true);
       write?.();
-      // reset value
     }
   };
 
@@ -105,7 +103,6 @@ function CreateEvent() {
       return;
     }
     setMetaDataLink(undefined);
-    // remove file
     setImageUrl(undefined);
     setFile(undefined);
     const fileInput = document.getElementById('fileInput') as HTMLInputElement;
@@ -186,7 +183,7 @@ function CreateEvent() {
         title: 'Upload to IPFS successful, now MINT below',
       });
       window.scrollTo(0, document.body.scrollHeight);
-      setIsLoading(false); // Use setIsLoading(false) instead of setIsLoading(true)
+      setIsLoading(false);
     } catch (error) {
       addNotification({
         status: 'error',
@@ -194,7 +191,7 @@ function CreateEvent() {
         description: (error as Error).message,
         autoClose: true,
       });
-      setIsLoading(false); // Use setIsLoading(false) instead of setIsLoading(true)
+      setIsLoading(false);
     }
   };
 
