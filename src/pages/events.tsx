@@ -12,12 +12,13 @@ import Event from '../../components/Event';
 function events() {
   return (
     <Box width="full" maxWidth="2xl" p={4}>
-      <Text fontSize="xl" my={4} fontWeight="bold">
+      <Text fontSize="xl" mb={4} fontWeight="bold">
         All Events
       </Text>
-      <Text fontSize="xl" fontWeight="bold">
+      <VStack spacing={4} alignItems="stretch">
         <Event />
-      </Text>
+        <Event />
+      </VStack>
     </Box>
   );
 }

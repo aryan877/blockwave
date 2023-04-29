@@ -11,7 +11,6 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import React from 'react';
 
 function Event() {
   return (
@@ -32,75 +31,84 @@ function Event() {
         objectFit="cover"
       />
 
-      <Box px="6" py="4">
-        <VStack align="start" spacing="2">
-          <HStack spacing="2">
-            <Text
-              color="purple.400"
-              fontSize="sm"
-              fontWeight="semibold"
-              letterSpacing="wide"
-              textTransform="uppercase"
-            >
-              Event Name
-            </Text>
-            <Text fontWeight="semibold" fontSize={{ base: 'md', md: 'lg' }}>
-              {/* replace with event name */}
-              Event Name
-            </Text>
-          </HStack>
+      <VStack px="6" py="4" spacing={4} align="stretch">
+        <Text
+          color="gray.400"
+          fontWeight="semibold"
+          letterSpacing="wide"
+          textTransform="uppercase"
+          fontSize="sm"
+        >
+          Event Name & ID
+        </Text>
+        <Heading fontSize="lg" fontWeight="semibold">
+          {/* replace with event name */}
+          Event Name, 2
+        </Heading>
+        <Text
+          color="gray.400"
+          fontWeight="semibold"
+          letterSpacing="wide"
+          textTransform="uppercase"
+          fontSize="sm"
+        >
+          Event Description
+        </Text>
+        <Text fontSize="md" fontWeight="normal">
+          {/* replace with event description */}
+          Event Description
+        </Text>
+        <Text
+          color="gray.400"
+          fontWeight="semibold"
+          letterSpacing="wide"
+          textTransform="uppercase"
+          fontSize="sm"
+        >
+          Creator
+        </Text>
+        <HStack>
+          <Avatar size="sm" src="https://via.placeholder.com/50" />
+          <Text fontWeight="semibold" fontSize="md">
+            {/* replace with creator name */}
+            Creator Name
+          </Text>
+        </HStack>
 
-          <HStack spacing="2">
-            <Text
-              color="purple.400"
-              fontSize="sm"
-              fontWeight="semibold"
-              letterSpacing="wide"
-              textTransform="uppercase"
-            >
-              Creator
-            </Text>
-            <HStack>
-              <Avatar size="sm" src="https://via.placeholder.com/50" />
-              <Text fontWeight="semibold" fontSize="md">
-                {/* replace with creator name */}
-                Creator Name
+        {/* <HStack spacing="2"></HStack> */}
+
+        <Flex alignItems="center">
+          <Text
+            color="gray.400"
+            fontWeight="semibold"
+            letterSpacing="wide"
+            textTransform="uppercase"
+            fontSize="sm"
+            mr={2}
+          >
+            Tickets
+          </Text>
+          <Text fontWeight="semibold" fontSize="md">
+            27 tickets left
+          </Text>
+        </Flex>
+
+        <Box>
+          {/* replace with a responsive card */}
+          <Box borderWidth="1px" borderRadius="lg" p="4">
+            <Box>
+              <Text color="gray.400" fontWeight="semibold" fontSize="md" mb="2">
+                {/* replace with number of tickets sold */}
+                Sold: 50/50
               </Text>
-            </HStack>
-          </HStack>
 
-          <HStack spacing="2">
-            <Text
-              color="purple.400"
-              fontSize="sm"
-              fontWeight="semibold"
-              letterSpacing="wide"
-              textTransform="uppercase"
-            >
-              Tickets
-            </Text>
-            <Text fontWeight="semibold" fontSize="md">
-              {/* replace with available tickets/total tickets */}
-              50 / 100
-            </Text>
-          </HStack>
-
-          <Button colorScheme="purple" size="md">
-            Buy Tickets
-          </Button>
-        </VStack>
-
-        <IconButton
-          colorScheme="purple"
-          variant="outline"
-          aria-label="favorite"
-          fontSize="20px"
-          icon={<i className="far fa-heart" />}
-          size="md"
-          ml="auto"
-          mt="4"
-        />
-      </Box>
+              <Button colorScheme="purple" size="md">
+                Buy Tickets
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      </VStack>
     </Box>
   );
 }
