@@ -1,6 +1,7 @@
 import '@/styles/globals.css';
 import { ChakraProvider } from '@chakra-ui/react';
 import type { AppProps } from 'next/app';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { polygonMumbai } from 'wagmi/chains';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
@@ -23,6 +24,7 @@ const client = createClient({
   webSocketProvider,
 });
 
+const queryClient = new QueryClient();
 export default function App({ Component, pageProps }: AppProps) {
   if (typeof window !== 'undefined') {
     localStorage.setItem('chakra-ui-color-mode', 'dark');
@@ -30,15 +32,17 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <WagmiConfig client={client}>
-      <ChakraProvider theme={theme}>
-        <NotificationProvider>
-          <main className={inter.className}>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
-          </main>
-        </NotificationProvider>
-      </ChakraProvider>
+      <QueryClientProvider client={queryClient}>
+        <ChakraProvider theme={theme}>
+          <NotificationProvider>
+            <main className={inter.className}>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </main>
+          </NotificationProvider>
+        </ChakraProvider>
+      </QueryClientProvider>
     </WagmiConfig>
   );
 }
