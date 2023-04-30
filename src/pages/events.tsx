@@ -7,20 +7,48 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import React from 'react';
+import { readContract } from '@wagmi/core';
+import React, { useEffect, useState } from 'react';
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
+import { TicketFactory } from '../../abi/address';
+import TicketABI from '../../abi/TicketFactory.json';
 import Event from '../../components/Event';
-function events() {
+
+function Events() {
+  const [events, setEvents] = useState<any>([]);
+  const { data: useContractReadData } = useContractRead({
+    address: TicketFactory,
+    abi: TicketABI.output.abi,
+    functionName: 'getUnsoldTickets',
+    watch: true,
+  });
+
+  useEffect(() => {
+    setEvents(useContractReadData);
+  }, [useContractReadData]);
+
+  useEffect(() => {
+    console.log(events);
+  }, [events]);
+
   return (
     <Box width="full" maxWidth="2xl" p={4}>
       <Text fontSize="xl" mb={4} fontWeight="bold">
         All Events
       </Text>
       <VStack spacing={4} alignItems="stretch">
-        <Event />
-        <Event />
+        {events.map((event: any) => {
+          return <Event key={event.metadataURI} event={event} />;
+        })}
       </VStack>
     </Box>
   );
 }
 
-export default events;
+export default Events;

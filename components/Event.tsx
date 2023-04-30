@@ -11,30 +11,73 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaClock } from 'react-icons/fa';
 
-function Event() {
+enum SaleStatus {
+  Active = 'active',
+  AboutToStart = 'about_to_start',
+  Ended = 'ended',
+}
+
+function Event({ event }: { event: any }) {
   const [countdown, setCountdown] = useState('');
+  const [status, setStatus] = useState<SaleStatus>(SaleStatus.AboutToStart);
 
   useEffect(() => {
-    const endTime = new Date('2023-05-01T12:00:00');
-    const countdownInterval = setInterval(() => {
-      const endTime: Date = new Date('2023-05-01T12:00:00Z');
-      const diff: number = endTime.getTime() - new Date().getTime();
-
-      if (diff <= 0) {
-        clearInterval(countdownInterval);
-        setCountdown('Sale ended');
-        return;
-      }
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / 1000 / 60) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
-      setCountdown(`Sale ends in ${days}d ${hours}h ${minutes}m ${seconds}s`);
-    }, 1000);
-    return () => clearInterval(countdownInterval);
+    const startTime: Date = new Date(event[4].toNumber() * 1000);
+    const endTime: Date = new Date(event[5].toNumber() * 1000);
+    const currentTime: Date = new Date();
+    if (currentTime < startTime) {
+      // Sale hasn't started yet
+      setStatus(SaleStatus.AboutToStart);
+      const countdownInterval = setInterval(() => {
+        const diff: number = startTime.getTime() - new Date().getTime();
+        if (diff <= 0) {
+          clearInterval(countdownInterval);
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+          const minutes = Math.floor((diff / 1000 / 60) % 60);
+          const seconds = Math.floor((diff / 1000) % 60);
+          setCountdown(
+            `Sale started, ends in ${days}d ${hours}h ${minutes}m ${seconds}s`
+          );
+          setStatus(SaleStatus.Active);
+          return;
+        }
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / 1000 / 60) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        setCountdown(
+          `Sale starts in ${days}d ${hours}h ${minutes}m ${seconds}s`
+        );
+      }, 1000);
+      return () => clearInterval(countdownInterval);
+    } else if (currentTime < endTime) {
+      // Sale is currently ongoing
+      setStatus(SaleStatus.Active);
+      const countdownInterval = setInterval(() => {
+        const diff: number = endTime.getTime() - new Date().getTime();
+        if (diff <= 0) {
+          clearInterval(countdownInterval);
+          setCountdown('Sale ended');
+          setStatus(SaleStatus.Ended);
+          return;
+        }
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / 1000 / 60) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        setCountdown(`Sale ends in ${days}d ${hours}h ${minutes}m ${seconds}s`);
+      }, 1000);
+      return () => clearInterval(countdownInterval);
+    } else {
+      // Sale has ended
+      setCountdown('Sale ended');
+      setStatus(SaleStatus.Ended);
+    }
   }, []);
 
   return (
@@ -56,7 +99,16 @@ function Event() {
       />
 
       <VStack px="4" py="4" spacing={4} align="stretch">
-        <Button colorScheme="purple" rightIcon={<FaClock />}>
+        <Button
+          colorScheme={
+            status === SaleStatus.AboutToStart
+              ? 'yellow'
+              : status === SaleStatus.Ended
+              ? 'red'
+              : 'green'
+          }
+          rightIcon={<FaClock />}
+        >
           {countdown}
         </Button>
 
@@ -66,12 +118,10 @@ function Event() {
           letterSpacing="wide"
           textTransform="uppercase"
           fontSize="sm"
-        >
-          Event Name & ID
-        </Text>
+        ></Text>
         <Heading fontSize="lg" fontWeight="semibold">
           {/* replace with event name */}
-          Event Name, 2
+          Event Name
         </Heading>
         <Text
           color="gray.400"
@@ -99,7 +149,7 @@ function Event() {
           <Avatar size="sm" src="https://via.placeholder.com/50" />
           <Text fontWeight="semibold" fontSize="md">
             {/* replace with creator name */}
-            Creator Name
+            {event.creator}
           </Text>
         </HStack>
 
@@ -117,7 +167,7 @@ function Event() {
             Tickets
           </Text>
           <Text fontWeight="semibold" fontSize="md">
-            27 tickets left
+            {event[2].toNumber()} tickets left
           </Text>
         </Flex>
 
@@ -127,10 +177,15 @@ function Event() {
             <Box>
               <Text color="gray.400" fontWeight="semibold" fontSize="md" mb="2">
                 {/* replace with number of tickets sold */}
-                Sold: 50/50
+                Sold: {event[1].toNumber() - event[2].toNumber()}/
+                {event[1].toNumber()}
               </Text>
 
-              <Button colorScheme="purple" size="md">
+              <Button
+                colorScheme="green"
+                size="md"
+                isDisabled={!(status === SaleStatus.Active)}
+              >
                 Buy Tickets
               </Button>
             </Box>

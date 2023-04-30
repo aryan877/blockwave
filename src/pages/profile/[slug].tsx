@@ -71,12 +71,6 @@ function Profile() {
     getUserAndPosts();
   }, [slug]);
 
-  // if (isLoading) {
-  //   return (
-
-  //   );
-  // }
-
   return (
     <Box width="full" maxWidth="2xl" p={4}>
       <Button mb={4} onClick={() => router.back()}>
@@ -97,13 +91,16 @@ function Profile() {
             {user?.name}
           </Text>
           <Text color="gray.500">@{user?._id}</Text>
+          <Button mt={4} borderRadius="md" colorScheme="green">
+            Edit Profile
+          </Button>
         </>
       ) : (
         <Box display="flex" justifyContent="center" alignItems="center">
           <Spinner size="xl" color="gray.500" />
         </Box>
       )}
-      <Text fontSize="xl" mt="8" fontWeight="bold">
+      <Text fontSize="xl" mt={8} fontWeight="bold">
         {slug === address ? 'My Posts' : 'All Posts'}
       </Text>
 

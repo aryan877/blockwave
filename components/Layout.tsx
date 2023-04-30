@@ -25,7 +25,6 @@ import {
   useSignMessage,
 } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
-import { AppContext } from '../context/AppContext';
 import { useNotification } from '../context/NotificationContext';
 import Loader from './Loader';
 import LoginPrompt from './LoginPrompt';

@@ -42,7 +42,6 @@ const PostBox = ({ setPosts }: setPostProps) => {
     if (value) {
       formData.append('text', value);
     }
-    formData.append('address', address as string);
 
     setIsLoading(true);
     //send signature along with current user address to authorize on backend
@@ -69,7 +68,6 @@ const PostBox = ({ setPosts }: setPostProps) => {
         setValue('');
       })
       .catch((error) => {
-        console.log(error);
         addNotification({
           status: 'error',
           title: 'Error',

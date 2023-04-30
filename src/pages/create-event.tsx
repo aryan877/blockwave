@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
+import { ethers } from 'ethers';
 import { Field, Form, Formik, FormikHelpers, FormikValues } from 'formik';
 import React, { useEffect, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
@@ -73,11 +74,15 @@ function CreateEvent() {
     abi: TicketABI.output.abi,
     functionName: 'createTicket',
     args: [
-      formValues.supply,
-      formValues.price,
-      Math.floor(startDate.getTime() / 1000),
-      Math.floor(endDate.getTime() / 1000),
-      metaDataLink,
+      formValues.supply || '',
+      ethers.utils.parseEther(formValues.price?.toString() || '0'),
+      ethers.BigNumber.from(
+        Math.floor(startDate.getTime() / 1000).toString() || ''
+      ),
+      ethers.BigNumber.from(
+        Math.floor(endDate.getTime() / 1000).toString() || ''
+      ),
+      metaDataLink || '',
       {
         gasLimit: 1300000,
       },
@@ -174,7 +179,6 @@ function CreateEvent() {
     if (formValues.description) {
       formData.append('description', formValues.description);
     }
-    formData.append('address', address as string);
     try {
       const res = await axios.post('/api/event/metadata', formData);
       setMetaDataLink(res.data.postMetaData);
@@ -207,10 +211,13 @@ function CreateEvent() {
       errors.supply = '*Total supply is required';
     } else if (values.supply < 1) {
       errors.supply = '*Total supply should be greater than 0';
+    } else if (!Number.isInteger(Number(values.supply))) {
+      errors.supply = '*Total supply should be a whole number';
     }
+
     if (!values.price) {
       errors.price = '*Ticket price is required';
-    } else if (values.price < 1) {
+    } else if (values.price < 0) {
       errors.price = '*Ticket price should be greater than 0';
     }
     if (!startDate) {

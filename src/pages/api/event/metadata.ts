@@ -43,11 +43,10 @@ const uploadEventMetadata = async (
     if (req.method !== 'POST') {
       res.status(405).json({ message: 'Method not allowed' });
     }
-    const { fields, files } = await readForm(req, true);
-    if (!(req.session.siwe?.address === (fields.address as string))) {
-      res.status(422).json({ message: 'Invalid token' });
+    if (!req.session.siwe?.address) {
+      return res.status(422).json({ message: 'Invalid token' });
     }
-
+    const { fields, files } = await readForm(req, true);
     if (!fields.name || !fields.description || !files.image) {
       res.status(406).json({
         message: 'event image, name and description are required',
@@ -91,10 +90,9 @@ const uploadEventMetadata = async (
     }
     res.status(201).json({ postMetaData });
     // setTimeout(() => {
-    //   res.json({ postMetaData: 'abcdkoii' });
+    //   res.json({ postMetaData: 'simulating ipfs upload' });
     // }, 1000); // sleep for 2 seconds
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

@@ -6,7 +6,6 @@ import { polygonMumbai } from 'wagmi/chains';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 import Layout from '../../components/Layout';
-import { AppProvider } from '../../context/AppContext';
 import { NotificationProvider } from '../../context/NotificationContext';
 import theme from '../../theme';
 const { provider, webSocketProvider } = configureChains(
@@ -33,15 +32,11 @@ export default function App({ Component, pageProps }: AppProps) {
     <WagmiConfig client={client}>
       <ChakraProvider theme={theme}>
         <NotificationProvider>
-          {/* <FreedomProvider> */}
-          <AppProvider>
-            <main className={inter.className}>
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
-            </main>
-            {/* </FreedomProvider> */}
-          </AppProvider>
+          <main className={inter.className}>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </main>
         </NotificationProvider>
       </ChakraProvider>
     </WagmiConfig>

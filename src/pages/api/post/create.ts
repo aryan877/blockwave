@@ -61,9 +61,6 @@ const createPost = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const { fields, files } = await readForm(req, true);
 
-    if (!(req.session.siwe?.address === (fields.address as string))) {
-      return res.status(422).json({ message: 'Invalid token' });
-    }
     if (!fields.txt && !files.image) {
       if (req.method !== 'POST') {
         res.status(405).json({
