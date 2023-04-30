@@ -92,8 +92,8 @@ function Event({ event }: { event: any }) {
 
   return (
     <Box
-      w={{ base: '100%', md: '80%' }}
-      maxW="700px"
+      // w={{ base: '100%', md: '80%' }}
+      maxWidth="2xl"
       borderWidth="1px"
       borderRadius="lg"
       overflow="hidden"
@@ -103,7 +103,7 @@ function Event({ event }: { event: any }) {
       {isLoading ? (
         <Spinner size="xl" />
       ) : error ? (
-        <Text>Could not fetch event</Text>
+        <Text>Could not fetch event metadata</Text>
       ) : (
         <>
           <Image

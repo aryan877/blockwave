@@ -6,6 +6,7 @@ import {
   Image,
   Input,
   Text,
+  Textarea,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
@@ -285,7 +286,7 @@ function CreateEvent() {
                       mb="4"
                       autoComplete="off"
                       focusBorderColor="green.400"
-                      variant="flushed"
+                      // variant="flushed"
                       placeholder="Enter event name"
                     />
                     {form.errors.name && form.touched.name && (
@@ -303,15 +304,16 @@ function CreateEvent() {
                     }
                   >
                     {/* <FormLabel>Description</FormLabel> */}
-                    <Input
+                    <Textarea
                       {...field}
                       _placeholder={{ color: 'gray.500' }}
                       type="text"
                       size="lg"
                       mb="4"
+                      height="fit-content"
                       autoComplete="off"
                       focusBorderColor="green.400"
-                      variant="flushed"
+                      // variant="flushed"
                       placeholder="Enter event description"
                     />
                     {form.errors.description && form.touched.description && (
@@ -335,8 +337,8 @@ function CreateEvent() {
                       autoComplete="off"
                       mb="4"
                       focusBorderColor="green.400"
-                      variant="flushed"
-                      placeholder="Enter total tickets"
+                      // variant="flushed"
+                      placeholder="Enter total ticket supply"
                     />
                     {form.errors.supply && form.touched.supply && (
                       <Text color="red.500">{form.errors.supply}</Text>
@@ -359,7 +361,7 @@ function CreateEvent() {
                       size="lg"
                       mb="4"
                       focusBorderColor="green.400"
-                      variant="flushed"
+                      // variant="flushed"
                       placeholder="Enter price per ticket (ETH)"
                     />
                     {form.errors.price && form.touched.price && (
