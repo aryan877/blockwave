@@ -128,7 +128,7 @@ const Layout = ({ children }: PropsWithChildren) => {
 
   if (status === 'connected' && !state.loggedInAddress) {
     app = <LoginPrompt signIn={signIn} />;
-  } else if (status === 'connected') {
+  } else if (state.loggedInAddress) {
     app = (
       <Container mb="4" mt="20" maxWidth="6xl" width="full">
         <Flex>
@@ -153,7 +153,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         px={4}
         py={2}
         top="0"
-        bg="gray.700"
+        bg="rgba(0, 0, 0, 0.8)"
       >
         <Link href="/">
           <Image src="/textlogo.png" alt="Logo" width={100} mx="auto" />
@@ -176,9 +176,9 @@ const Layout = ({ children }: PropsWithChildren) => {
                   {state.loggedInAddress.slice(0, 6)}....
                   {state.loggedInAddress.slice(-6)}
                 </MenuButton>
-                <MenuList bg="gray.900" color="white">
+                <MenuList bg="black.900" color="white">
                   <MenuItem
-                    _hover={{ bg: 'gray.600', cursor: 'pointer' }}
+                    _hover={{ bg: 'black.600', cursor: 'pointer' }}
                     onClick={async () => {
                       await fetch('/api/logout', {
                         method: 'POST',
@@ -211,9 +211,9 @@ const Layout = ({ children }: PropsWithChildren) => {
                 >
                   {address.slice(0, 6)}....{address.slice(-6)}
                 </MenuButton>
-                <MenuList bg="gray.900" color="white">
+                <MenuList bg="black.900" color="white">
                   <MenuItem
-                    _hover={{ bg: 'gray.600', cursor: 'pointer' }}
+                    _hover={{ bg: 'black.600', cursor: 'pointer' }}
                     onClick={() => disconnect()}
                   >
                     Disconnect Wallet

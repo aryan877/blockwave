@@ -13,11 +13,13 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import axios from 'axios';
+import dayjs from 'dayjs';
 import { ethers } from 'ethers';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { FaClock } from 'react-icons/fa';
 import { useQuery } from 'react-query';
+import { useAccount } from 'wagmi';
 enum SaleStatus {
   Active = 'active',
   AboutToStart = 'about_to_start',
@@ -25,6 +27,7 @@ enum SaleStatus {
 }
 function Event({ event }: { event: any }) {
   const [countdown, setCountdown] = useState('');
+  const { address } = useAccount();
   const [status, setStatus] = useState<SaleStatus>(SaleStatus.AboutToStart);
   const {
     isLoading,
@@ -72,7 +75,9 @@ function Event({ event }: { event: any }) {
         const diff: number = endTime.getTime() - new Date().getTime();
         if (diff <= 0) {
           clearInterval(countdownInterval);
-          setCountdown('Sale ended');
+          setCountdown(
+            `Sale ended on ${dayjs(endTime).format('MMM D, YYYY, h:mm A')}`
+          );
           setStatus(SaleStatus.Ended);
           return;
         }
@@ -85,7 +90,9 @@ function Event({ event }: { event: any }) {
       return () => clearInterval(countdownInterval);
     } else {
       // Sale has already ended when page loaded
-      setCountdown('Sale ended');
+      setCountdown(
+        `Sale ended on ${dayjs(endTime).format('MMM D, YYYY, h:mm A')}`
+      );
       setStatus(SaleStatus.Ended);
     }
   }, [event.startTime, event.endTime]);
@@ -97,6 +104,7 @@ function Event({ event }: { event: any }) {
       borderWidth="1px"
       borderRadius="lg"
       overflow="hidden"
+      backgroundColor="gray.900"
       boxShadow="md"
       _hover={{ boxShadow: 'lg' }}
     >
@@ -154,14 +162,24 @@ function Event({ event }: { event: any }) {
                   size="sm"
                   src={`https://api.dicebear.com/6.x/adventurer/svg?seed=${event.creator}`}
                 />
-                <Text
-                  fontWeight="semibold"
-                  fontSize="md"
-                  _hover={{ textDecoration: 'underline' }}
-                >
-                  @{event.creator?.slice(0, 6)}....
-                  {event.creator?.slice(-6)}
-                </Text>
+                {address !== event.creator ? (
+                  <Text
+                    fontWeight="semibold"
+                    fontSize="md"
+                    _hover={{ textDecoration: 'underline' }}
+                  >
+                    @{event.creator?.slice(0, 6)}....
+                    {event.creator?.slice(-6)}
+                  </Text>
+                ) : (
+                  <Text
+                    fontWeight="semibold"
+                    fontSize="md"
+                    _hover={{ textDecoration: 'underline' }}
+                  >
+                    You
+                  </Text>
+                )}
               </HStack>
             </Link>
 
@@ -189,21 +207,28 @@ function Event({ event }: { event: any }) {
                 backgroundColor="gray.900"
               >
                 <Box>
-                  <Text fontWeight="semibold" fontSize="md" mb="2">
-                    Sold: {event[1].toNumber() - event[2].toNumber()}/
-                    {event[1].toNumber()}
-                  </Text>
-                  <Text fontWeight="semibold" fontSize="md" mb="2">
-                    Price: {ethers.utils.formatEther(event[3])} ETH
-                  </Text>
-
-                  <Button
-                    colorScheme="purple"
-                    size="md"
-                    isDisabled={!(status === SaleStatus.Active)}
-                  >
-                    Buy Tickets
-                  </Button>
+                  <HStack spacing="2" mb="2">
+                    <Text fontSize="sm">Sold</Text>
+                    <Text fontWeight="bold">
+                      {event[1].toNumber() - event[2].toNumber()}/
+                      {event[1].toNumber()}
+                    </Text>
+                  </HStack>
+                  <HStack spacing="2" mb="2">
+                    <Text fontSize="sm">Ticket price</Text>
+                    <Text fontWeight="bold">
+                      {ethers.utils.formatEther(event[3])} ETH
+                    </Text>
+                  </HStack>
+                  {address !== event.creator && (
+                    <Button
+                      colorScheme="purple"
+                      size="md"
+                      isDisabled={!(status === SaleStatus.Active)}
+                    >
+                      Buy Tickets
+                    </Button>
+                  )}
                 </Box>
               </Box>
             </Box>

@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Flex,
   FormControl,
   FormLabel,
   Image,
@@ -12,9 +13,11 @@ import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { Field, Form, Formik, FormikHelpers, FormikValues } from 'formik';
+import { useRouter } from 'next/router';
 import React, { useEffect, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { FiArrowLeft } from 'react-icons/fi';
 import { IoImagesOutline } from 'react-icons/io5';
 import { MdClose } from 'react-icons/md';
 import { start } from 'repl';
@@ -118,9 +121,11 @@ function CreateEvent() {
     addNotification({
       status: 'success',
       title: 'Event Creation Successful',
-      description: `Your event has been successfully created. Transaction hash: ${hash}`,
+      description: `Your event has been successfully created. Transaction hash: ${hash.slice(
+        0,
+        6
+      )}....${hash.slice(0, -6)}`,
     });
-
     setIsLoading(false);
   }, [useWaitForTransactionData?.transactionHash]);
 
@@ -199,7 +204,7 @@ function CreateEvent() {
       setIsLoading(false);
     }
   };
-
+  const router = useRouter();
   const validate = (values: FormikValues) => {
     const errors: FormikValues = {};
     if (!values.name) {
@@ -234,7 +239,10 @@ function CreateEvent() {
   };
 
   return (
-    <>
+    <Flex direction="column">
+      <Button mb={4} onClick={() => router.back()} w="fit-content">
+        <FiArrowLeft />
+      </Button>
       <Box
         width="full"
         maxWidth="2xl"
@@ -538,7 +546,7 @@ function CreateEvent() {
           )}
         </Formik>
       </Box>
-    </>
+    </Flex>
   );
 }
 
