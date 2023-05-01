@@ -21,6 +21,7 @@ import {
 import { TicketFactory } from '../../abi/address';
 import TicketABI from '../../abi/TicketFactory.json';
 import Event from '../../components/Event';
+import Ticket from '../../components/Ticket';
 function MyTickets() {
   const { address } = useAccount();
   const [events, setEvents] = useState<any>([]);
@@ -66,7 +67,7 @@ function MyTickets() {
       </Box>
       <VStack spacing={4} alignItems="stretch">
         {events?.map((event: any) => {
-          return <Event key={event[6]} event={event} />;
+          return <Ticket key={event[6]} event={event} />;
         })}
       </VStack>
     </Box>

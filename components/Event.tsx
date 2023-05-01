@@ -15,6 +15,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spacer,
   Spinner,
   Stack,
   Text,
@@ -285,7 +286,7 @@ function Event({ event }: { event: any }) {
             />
 
             <VStack px="4" py="4" spacing={2} align="stretch">
-              <Text
+              {/* <Text
                 color="gray.400"
                 // fontWeight="semibold"
                 letterSpacing="wide"
@@ -295,8 +296,17 @@ function Event({ event }: { event: any }) {
               </Text>
               <Heading fontSize="lg" fontWeight="bold">
                 {metadata?.name}
-              </Heading>
-              <Text
+              </Heading> */}
+              <HStack spacing="2">
+                <Text color="gray.400" fontSize="sm">
+                  Event Name
+                </Text>
+                <Text fontSize="xl" fontWeight="bold">
+                  {metadata?.name}
+                </Text>
+              </HStack>
+
+              {/* <Text
                 color="gray.400"
                 // fontWeight="semibold"
                 letterSpacing="wide"
@@ -306,7 +316,14 @@ function Event({ event }: { event: any }) {
               </Text>
               <Heading fontSize="lg" fontWeight="bold">
                 #{event[0].toString()}
-              </Heading>
+              </Heading> */}
+              <HStack spacing="2">
+                <Text color="gray.400" fontSize="sm">
+                  Event ID
+                </Text>
+                <Text fontWeight="bold"> #{event[0].toString()}</Text>
+              </HStack>
+              <Spacer />
               <Text
                 color="gray.400"
                 // fontWeight="semibold"
@@ -318,6 +335,7 @@ function Event({ event }: { event: any }) {
               <Text fontSize="md" fontWeight="normal">
                 {metadata?.description}
               </Text>
+              <Spacer />
               <Text
                 color="gray.400"
                 // fontWeight="semibold"
