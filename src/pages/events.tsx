@@ -56,11 +56,10 @@ function Events() {
         borderColor="white"
         borderWidth="1px"
       >
-        <Text fontSize="md" fontWeight="bold">
+        <Text fontSize="md">
           These are all the events created by the users of the platform. You can
-          buy one or multiple tickets for any event listed below by selecting
-          the number of tickets you want and clicking on the "Buy Tickets"
-          button.
+          buy one or multiple tickets for any event listed below by clicking on
+          the "Buy Tickets" button.
         </Text>
       </Box>
       <VStack spacing={4} alignItems="stretch">

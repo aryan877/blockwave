@@ -124,8 +124,9 @@ function CreateEvent() {
       description: `Your event has been successfully created. Transaction hash: ${hash.slice(
         0,
         6
-      )}....${hash.slice(0, -6)}`,
+      )}....${hash.slice(-6)}. You can check your event in the My Events tab.`,
     });
+
     setIsLoading(false);
   }, [useWaitForTransactionData?.transactionHash]);
 

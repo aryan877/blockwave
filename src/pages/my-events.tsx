@@ -59,7 +59,7 @@ function MyEvents() {
         borderColor="white"
         borderWidth="1px"
       >
-        <Text fontSize="md" fontWeight="bold">
+        <Text fontSize="md">
           These are all the events you have created. You can view their details
           below.
         </Text>
