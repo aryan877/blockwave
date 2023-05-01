@@ -176,9 +176,9 @@ const Layout = ({ children }: PropsWithChildren) => {
                   {state.loggedInAddress.slice(0, 6)}....
                   {state.loggedInAddress.slice(-6)}
                 </MenuButton>
-                <MenuList bg="black.900" color="white">
+                <MenuList color="white">
                   <MenuItem
-                    _hover={{ bg: 'black.600', cursor: 'pointer' }}
+                    _hover={{ cursor: 'pointer' }}
                     onClick={async () => {
                       await fetch('/api/logout', {
                         method: 'POST',

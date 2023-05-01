@@ -38,7 +38,15 @@ export interface PostProps {
     profileImage: string;
   };
 }
-function Post({ post }: { post: PostProps }) {
+function Post({
+  post,
+  index,
+  length,
+}: {
+  post: PostProps;
+  index: number;
+  length: number;
+}) {
   const [isLiked, setIsLiked] = useState<boolean>(false);
 
   useEffect(() => {
@@ -110,7 +118,19 @@ function Post({ post }: { post: PostProps }) {
   };
 
   return (
-    <Flex bg="gray.900" borderRadius="md" borderWidth="1px" p={4} align="start">
+    <Flex
+      bg="gray.900"
+      borderLeftWidth="1px"
+      borderRightWidth="1px"
+      borderBottomWidth="1px"
+      borderTopWidth={0 === index ? '1px' : 'none'}
+      borderBottomRightRadius={length - 1 === index ? 'md' : 'none'}
+      borderBottomLeftRadius={length - 1 === index ? 'md' : 'none'}
+      borderTopRightRadius={0 === index ? 'md' : 'none'}
+      borderTopLeftRadius={0 === index ? 'md' : 'none'}
+      p={4}
+      align="start"
+    >
       <Link href={`/profile/${post.author?.walletAddress}`}>
         <Avatar size="md" src={post.author?.profileImage} mr={4} />
       </Link>
@@ -210,11 +230,11 @@ function Post({ post }: { post: PostProps }) {
 
 function Posts({ posts }: { posts: PostProps[] }) {
   return (
-    <VStack mt={4} spacing={4} width="full" align="stretch">
-      {posts.map((post) => (
-        <Post key={post._id} post={post} />
+    <Flex mt={2} width="full" align="stretch" flexDirection="column">
+      {posts.map((post, index) => (
+        <Post key={post._id} post={post} index={index} length={posts.length} />
       ))}
-    </VStack>
+    </Flex>
   );
 }
 
