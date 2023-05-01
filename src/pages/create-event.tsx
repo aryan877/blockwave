@@ -68,7 +68,6 @@ function CreateEvent() {
   }
   const handleSubmit = async (values: FormikValues) => {
     if (write) {
-      setIsLoading(true);
       write?.();
     }
   };
@@ -93,16 +92,13 @@ function CreateEvent() {
     ],
   });
 
-  const {
-    data: useContractWriteData,
-    write,
-    isError,
-  } = useContractWrite(config);
+  const { data: useContractWriteData, write } = useContractWrite(config);
 
   const {
     data: useWaitForTransactionData,
     isSuccess,
     isFetching,
+    isError,
   } = useWaitForTransaction({
     hash: useContractWriteData?.hash,
   });
@@ -126,9 +122,17 @@ function CreateEvent() {
         6
       )}....${hash.slice(-6)}. You can check your event in the My Events tab.`,
     });
-
-    setIsLoading(false);
   }, [useWaitForTransactionData?.transactionHash]);
+
+  useEffect(() => {
+    if (isError) {
+      addNotification({
+        status: 'error',
+        title: 'Something went wrong',
+        description: `Transaction failed`,
+      });
+    }
+  }, [isError]);
 
   useEffect(() => {
     if (
@@ -142,15 +146,13 @@ function CreateEvent() {
       addNotification({
         status: 'info',
         title: 'Waiting for confirmation',
+        description: `Transaction hash: ${useContractWriteData?.hash.slice(
+          0,
+          6
+        )}....${useContractWriteData?.hash.slice(-6)}`,
       });
     }
   }, [isFetching]);
-
-  useEffect(() => {
-    if (isError) {
-      setIsLoading(false);
-    }
-  }, [isError]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -258,9 +260,10 @@ function CreateEvent() {
         </Text>
         <Box display="flex" alignItems="center" mb={4}>
           <Text color="gray.500" mt={2} mb={4}>
-            Please fill in the following fields to create your event. There are
-            two steps to complete this process: first, upload your event
-            metadata to IPFS; second, mint your event NFT using the form below.
+            Please fill in the following fields to create your event as an
+            ERC-1155 NFT Token. There are two steps to complete this process:
+            first, upload your event metadata to IPFS; second, mint your event
+            NFT using the form below.
           </Text>
         </Box>
         <Formik
@@ -537,7 +540,7 @@ function CreateEvent() {
                   <Button
                     type="submit"
                     colorScheme="green"
-                    isLoading={isLoading}
+                    isLoading={isFetching}
                   >
                     Mint Event
                   </Button>

@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import Link from 'next/link';
-import Router, { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { AiOutlineArrowRight, AiOutlineCaretDown } from 'react-icons/ai';
 import { SiweMessage } from 'siwe';
@@ -40,6 +40,22 @@ const Layout = ({ children }: PropsWithChildren) => {
   const { disconnect } = useDisconnect();
   const { chain, chains } = useNetwork();
   const { addNotification } = useNotification();
+
+  const logout = async () => {
+    router.replace('/');
+    await fetch('/api/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}), // add data if needed
+    });
+    setState({});
+  };
+
+  // useEffect(() => {
+  //   logout();
+  // }, [address]);
 
   const [state, setState] = useState<{
     loggedInAddress?: string;
@@ -116,7 +132,6 @@ const Layout = ({ children }: PropsWithChildren) => {
         const res = await fetch('/api/me');
         const json = await res.json();
         setState((x) => ({ ...x, loggedInAddress: json.address }));
-        // router.replace('/');
       } catch (_error) {}
     };
     handler();
@@ -177,20 +192,7 @@ const Layout = ({ children }: PropsWithChildren) => {
                   {state.loggedInAddress.slice(-6)}
                 </MenuButton>
                 <MenuList color="white">
-                  <MenuItem
-                    _hover={{ cursor: 'pointer' }}
-                    onClick={async () => {
-                      await fetch('/api/logout', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({}), // add data if needed
-                      });
-                      setState({});
-                      router.replace('/');
-                    }}
-                  >
+                  <MenuItem _hover={{ cursor: 'pointer' }} onClick={logout}>
                     Logout
                   </MenuItem>
                 </MenuList>

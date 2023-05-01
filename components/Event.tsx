@@ -29,8 +29,15 @@ import { useEffect, useState } from 'react';
 import { BsDash, BsPlus } from 'react-icons/bs';
 import { FaClock } from 'react-icons/fa';
 import { useQuery } from 'react-query';
-import { useAccount } from 'wagmi';
-
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
+import { TicketFactory } from '../abi/address';
+import TicketABI from '../abi/TicketFactory.json';
 enum SaleStatus {
   Active = 'active',
   AboutToStart = 'about_to_start',
@@ -44,16 +51,16 @@ function Event({ event }: { event: any }) {
     isLoading,
     error,
     data: metadata,
-  } = useQuery(['metadata', event[6]], async () => {
-    const response = await axios.get(`${event[6]}`);
+  } = useQuery(['metadata', event[7]], async () => {
+    const response = await axios.get(`${event[7]}`);
     return response.data;
   });
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    const startTime: Date = new Date(event[4].toNumber() * 1000);
-    const endTime: Date = new Date(event[5].toNumber() * 1000);
+    const startTime: Date = new Date(event[5].toNumber() * 1000);
+    const endTime: Date = new Date(event[6].toNumber() * 1000);
     const currentTime: Date = new Date();
     if (currentTime < startTime) {
       // Sale has not started yet then this condition
@@ -111,9 +118,7 @@ function Event({ event }: { event: any }) {
   }, [event.startTime, event.endTime]);
   //Modal State
   const [numTickets, setNumTickets] = useState(1);
-  const [isLoadingModal, setIsLoadingModal] = useState(false);
   const [isPurchased, setIsPurchased] = useState(false);
-
   const handleNumTicketsChange = (e: any) => {
     const value = parseInt(e.target.value);
     if (value >= 1) {
@@ -131,18 +136,46 @@ function Event({ event }: { event: any }) {
     }
   };
 
-  const handleBuyTickets = async () => {
-    setIsLoadingModal(true);
-    // Add your code to purchase tickets here
-    // You can use the event ID and numTickets to send the request
-    // When the request is successful, set isPurchased to true
-    // and setIsLoading to false
-    setTimeout(() => {
-      setIsLoadingModal(false);
-      setIsPurchased(true);
-    }, 2000);
-  };
   //Modal State
+  //Modal web3 functions
+  const { config } = usePrepareContractWrite({
+    address: TicketFactory,
+    abi: TicketABI.output.abi,
+    functionName: 'buyTicket',
+    args: [ethers.BigNumber.from(event[0]), numTickets],
+    overrides: {
+      value: event[4].mul(numTickets),
+    },
+  });
+
+  const {
+    data: useContractWriteData,
+    write,
+    isError,
+  } = useContractWrite(config);
+
+  const {
+    data: useWaitForTransactionData,
+    isSuccess,
+    isFetching,
+    isError: useWaitForTransactionError,
+  } = useWaitForTransaction({
+    hash: useContractWriteData?.hash,
+  });
+
+  useEffect(() => {
+    if (!useWaitForTransactionData?.transactionHash) {
+      return;
+    }
+    setIsPurchased(true);
+  }, [useWaitForTransactionData?.transactionHash]);
+
+  const handleSubmit = async () => {
+    if (write) {
+      write?.();
+    }
+  };
+  //Modal web3 functions
   return (
     <>
       <Modal
@@ -156,7 +189,7 @@ function Event({ event }: { event: any }) {
       >
         <ModalOverlay />
         <ModalContent bgColor="gray.900" borderWidth="1px">
-          <ModalHeader>Buy Tickets {event.name}</ModalHeader>
+          <ModalHeader>Buy Tickets</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Text fontWeight="bold" mb={4}>
@@ -166,7 +199,13 @@ function Event({ event }: { event: any }) {
               <Text fontSize="md" color="gray.400">
                 Event name
               </Text>
-              <Text fontWeight="bold">Crypto Con</Text>
+              <Text fontWeight="bold">{metadata?.name}</Text>
+            </HStack>
+            <HStack spacing="2" mb={4}>
+              <Text fontSize="md" color="gray.400">
+                Event ID
+              </Text>
+              <Text fontWeight="bold">#{event[0].toString()}</Text>
             </HStack>
             <Flex alignItems="center" mb={4}>
               <Button onClick={handleDecrement} mr={2}>
@@ -180,9 +219,9 @@ function Event({ event }: { event: any }) {
                 min="1"
                 width="4rem"
                 textAlign="center"
-                borderRadius={4}
+                borderRadius="md"
                 mr={2}
-                readOnly={isLoadingModal || isPurchased}
+                readOnly={isFetching || isSuccess}
                 style={{ minWidth: 0 }}
               />
               <Button onClick={handleIncrement} mr={2}>
@@ -190,14 +229,22 @@ function Event({ event }: { event: any }) {
               </Button>
             </Flex>
             <Text mb={4} color="gray.400">
-              You will pay {ethers.utils.formatEther(event[3].mul(numTickets))}{' '}
+              You will pay {ethers.utils.formatEther(event[4].mul(numTickets))}{' '}
               ETH
             </Text>
-
-            {isPurchased && (
+            {isFetching ? (
+              <Text>Transaction pending....</Text>
+            ) : isPurchased && isSuccess ? (
               <Text color="green.400">
                 Tickets purchased successfully. Check your tickets in My Tickets
                 tab.
+              </Text>
+            ) : (
+              <></>
+            )}
+            {useWaitForTransactionError && (
+              <Text color="green.400">
+                Error, could not complete transaction, try again.
               </Text>
             )}
           </ModalBody>
@@ -205,11 +252,10 @@ function Event({ event }: { event: any }) {
           <ModalFooter>
             <Button
               colorScheme="purple"
-              onClick={handleBuyTickets}
-              isLoading={isLoadingModal}
-              isDisabled={isLoading || isPurchased}
+              onClick={handleSubmit}
+              isLoading={isFetching}
             >
-              {isLoadingModal ? <Spinner size="sm" /> : 'Buy'}
+              {isFetching ? <Spinner size="sm" /> : 'Buy'}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -249,6 +295,17 @@ function Event({ event }: { event: any }) {
               </Text>
               <Heading fontSize="lg" fontWeight="bold">
                 {metadata?.name}
+              </Heading>
+              <Text
+                color="gray.400"
+                // fontWeight="semibold"
+                letterSpacing="wide"
+                fontSize="sm"
+              >
+                Event ID
+              </Text>
+              <Heading fontSize="lg" fontWeight="bold">
+                #{event[0].toString()}
               </Heading>
               <Text
                 color="gray.400"
@@ -307,7 +364,7 @@ function Event({ event }: { event: any }) {
                   Tickets
                 </Text>
                 <Text fontWeight="semibold" fontSize="md">
-                  {event[2].toNumber()} tickets left
+                  {event[3].toNumber()} tickets left
                 </Text>
               </Flex>
 
@@ -324,8 +381,8 @@ function Event({ event }: { event: any }) {
                         Sold
                       </Text>
                       <Text fontWeight="bold">
-                        {event[1].toNumber() - event[2].toNumber()}/
-                        {event[1].toNumber()}
+                        {event[2].toNumber() - event[3].toNumber()}/
+                        {event[2].toNumber()}
                       </Text>
                     </HStack>
                     <HStack spacing="2" mb="2">
@@ -333,7 +390,7 @@ function Event({ event }: { event: any }) {
                         Ticket price
                       </Text>
                       <Text fontWeight="bold">
-                        {ethers.utils.formatEther(event[3])} ETH
+                        {ethers.utils.formatEther(event[4])} ETH
                       </Text>
                     </HStack>
                     {address !== event.creator && (

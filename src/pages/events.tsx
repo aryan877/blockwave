@@ -49,17 +49,17 @@ function Events() {
         All Events
       </Text>
       <Box
-        bg="green.400"
-        p={4}
         mb={4}
-        borderRadius={4}
-        borderColor="white"
-        borderWidth="1px"
+        color="gray.700"
+        bg="green.200"
+        borderRadius="md"
+        p="4"
+        fontWeight="semibold"
       >
         <Text fontSize="md">
-          These are all the events created by the users of the platform. You can
-          buy one or multiple tickets for any event listed below by clicking on
-          the "Buy Tickets" button.
+          These are all the ERC-1155 token events created by the users of the
+          platform. You can buy one or multiple tickets for any event listed
+          below by clicking on the "Buy Tickets" button.
         </Text>
       </Box>
       <VStack spacing={4} alignItems="stretch">

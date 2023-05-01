@@ -6,7 +6,7 @@ import {
   Image,
   Spinner,
   Text,
-  VStack
+  VStack,
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -91,9 +91,15 @@ function Profile() {
             {user?.name}
           </Text>
           <Text color="gray.500">@{user?._id}</Text>
-          <Button mt={4} borderRadius="md" colorScheme="green">
-            Edit Profile
-          </Button>
+          {address === slug ? (
+            <Button mt={4} borderRadius="md" colorScheme="green">
+              Edit Profile
+            </Button>
+          ) : (
+            <Button mt={4} borderRadius="md" colorScheme="green">
+              Send ETH
+            </Button>
+          )}
         </>
       ) : (
         <Box display="flex" justifyContent="center" alignItems="center">

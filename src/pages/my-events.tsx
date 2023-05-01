@@ -2,12 +2,14 @@ import {
   Avatar,
   Box,
   Button,
+  Center,
   Flex,
   Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
 import { readContract } from '@wagmi/core';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
@@ -52,12 +54,12 @@ function MyEvents() {
         My Events
       </Text>
       <Box
-        bg="green.400"
-        p={4}
         mb={4}
-        borderRadius={4}
-        borderColor="white"
-        borderWidth="1px"
+        color="gray.700"
+        bg="green.200"
+        borderRadius="md"
+        p="4"
+        fontWeight="semibold"
       >
         <Text fontSize="md">
           These are all the events you have created. You can view their details
@@ -65,6 +67,27 @@ function MyEvents() {
         </Text>
       </Box>
       <VStack spacing={4} alignItems="stretch">
+        {events.length === 0 && (
+          <>
+            <Text
+              fontSize="lg"
+              fontWeight="medium"
+              color="gray.500"
+              textAlign="center"
+              mt="8"
+              mb="4"
+            >
+              It looks like you haven't created any events yet.
+            </Text>
+            <Center>
+              <Link href="/create-event">
+                <Button variant="solid" colorScheme="green">
+                  Create a new event
+                </Button>
+              </Link>
+            </Center>
+          </>
+        )}
         {events?.map((event: any) => {
           return <Event key={event[6]} event={event} />;
         })}
