@@ -204,7 +204,7 @@ function Event({ event }: { event: any }) {
             </HStack>
             <HStack spacing="2" mb={4}>
               <Text fontSize="md" color="gray.400">
-                Event ID
+                Event id
               </Text>
               <Text fontWeight="bold">#{event[0].toString()}</Text>
             </HStack>
@@ -319,7 +319,7 @@ function Event({ event }: { event: any }) {
               </Heading> */}
               <HStack spacing="2">
                 <Text color="gray.400" fontSize="sm">
-                  Event ID
+                  Event id
                 </Text>
                 <Text fontWeight="bold"> #{event[0].toString()}</Text>
               </HStack>

@@ -2,12 +2,14 @@ import {
   Avatar,
   Box,
   Button,
+  Center,
   Flex,
   Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
 import { readContract } from '@wagmi/core';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
@@ -40,10 +42,6 @@ function MyTickets() {
     setEvents(useContractReadEvents);
   }, [useContractReadEvents]);
 
-  useEffect(() => {
-    console.log(events);
-  }, [events]);
-
   return (
     <Box width="full" maxWidth="2xl" p={4}>
       <Button mb={4} onClick={() => router.back()} w="fit-content">
@@ -65,11 +63,34 @@ function MyTickets() {
           details below.
         </Text>
       </Box>
-      <VStack spacing={4} alignItems="stretch">
-        {events?.map((event: any) => {
-          return <Ticket key={event[6]} event={event} />;
-        })}
-      </VStack>
+      {events && (
+        <VStack spacing={4} alignItems="stretch">
+          {events?.length === 0 && (
+            <>
+              <Text
+                fontSize="lg"
+                fontWeight="medium"
+                color="gray.500"
+                textAlign="center"
+                mt="8"
+                mb="4"
+              >
+                It looks like you haven't purchased any event tickets yet.
+              </Text>
+              <Center>
+                <Link href="/events">
+                  <Button variant="solid" colorScheme="green">
+                    Explore events
+                  </Button>
+                </Link>
+              </Center>
+            </>
+          )}
+          {events?.map((event: any) => {
+            return <Ticket key={event[6]} event={event} />;
+          })}
+        </VStack>
+      )}
     </Box>
   );
 }
