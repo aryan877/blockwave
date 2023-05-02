@@ -63,6 +63,11 @@ function Post({
       const res = await axios.post('/api/post/like', {
         id: post._id,
       });
+      addNotification({
+        status: 'success',
+        title: res.data.message,
+        autoClose: true,
+      });
     } catch (err) {
       setIsLiked(false);
       setLikeCount((prev) => prev - 1);
@@ -106,6 +111,7 @@ function Post({
       addNotification({
         status: 'success',
         title: res.data.message,
+        description: 'Refresh to see changes',
         autoClose: true,
       });
     } catch (err) {

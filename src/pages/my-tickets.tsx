@@ -9,6 +9,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { readContract } from '@wagmi/core';
+import { isEmpty } from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
@@ -65,7 +66,7 @@ function MyTickets() {
       </Box>
       {events && (
         <VStack spacing={4} alignItems="stretch">
-          {events?.length === 0 && (
+          {isEmpty(events) && (
             <>
               <Text
                 fontSize="lg"
@@ -86,8 +87,8 @@ function MyTickets() {
               </Center>
             </>
           )}
-          {events?.map((event: any) => {
-            return <Ticket key={event[6]} event={event} />;
+          {events?.map((event: any, index: number) => {
+            return <Ticket key={event[6]} index={index} event={event} />;
           })}
         </VStack>
       )}

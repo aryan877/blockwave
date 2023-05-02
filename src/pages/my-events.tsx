@@ -9,6 +9,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { readContract } from '@wagmi/core';
+import { isEmpty } from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
@@ -67,7 +68,7 @@ function MyEvents() {
         </Text>
       </Box>
       <VStack spacing={4} alignItems="stretch">
-        {events.length === 0 && (
+        {events && isEmpty(events) && (
           <>
             <Text
               fontSize="lg"

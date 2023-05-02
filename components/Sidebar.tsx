@@ -37,14 +37,12 @@ function Sidebar() {
         <Link href={`/profile/${address}`}>
           <SidebarLink icon={AiOutlineUser}>Profile</SidebarLink>
         </Link>
-        <Link href="/create-event">
-          <SidebarLink icon={AiOutlinePlus}>Mint Event</SidebarLink>
-        </Link>
-
         <Link href="/events">
           <SidebarLink icon={AiOutlineFire}>Browse Events</SidebarLink>
         </Link>
-
+        <Link href="/create-event">
+          <SidebarLink icon={AiOutlinePlus}>Mint Event</SidebarLink>
+        </Link>
         <Link href="/my-tickets">
           <SidebarLink icon={BsBag}>My Tickets</SidebarLink>
         </Link>

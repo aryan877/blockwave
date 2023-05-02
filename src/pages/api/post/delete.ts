@@ -20,8 +20,7 @@ const deletePost = async (req: NextApiRequest, res: NextApiResponse) => {
 
       .then(() => {
         return res.status(200).json({
-          message:
-            'Post deleted successfully. Please refresh the page to see changes.',
+          message: 'Post deleted successfully',
         });
       })
       .catch((error) => {

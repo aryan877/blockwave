@@ -10,17 +10,29 @@ import {
   Textarea,
 } from '@chakra-ui/react';
 import axios from 'axios';
-import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
-import { Field, Form, Formik, FormikHelpers, FormikValues } from 'formik';
+import {
+  Field,
+  Form,
+  Formik,
+  FormikHelpers,
+  FormikValues,
+  getIn,
+} from 'formik';
+import { isEmpty } from 'lodash';
 import { useRouter } from 'next/router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useDropzone } from 'react-dropzone';
+import { BsCardImage } from 'react-icons/bs';
 import { FiArrowLeft } from 'react-icons/fi';
 import { IoImagesOutline } from 'react-icons/io5';
-import { MdClose } from 'react-icons/md';
+import { MdClose, MdImage } from 'react-icons/md';
 import { start } from 'repl';
+
+import { Grenze } from 'next/font/google';
+import { Accept } from 'react-dropzone';
 import {
   useAccount,
   useContractRead,
@@ -49,7 +61,7 @@ function CreateEvent() {
   const formRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useAccount();
-  const { addNotification } = useNotification();
+  const { addNotification, removeNotification } = useNotification();
   const [metaDataLink, setMetaDataLink] = useState<string | undefined>(
     undefined
   );
@@ -61,16 +73,12 @@ function CreateEvent() {
   const [endDate, setEndDate] = useState<Date>(
     roundOffToNearest15Minutes(new Date(Date.now() + 60 * 60 * 1000))
   );
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const [formValues, setFormValues] = useState<FormikValues>({});
   function handleFormValuesChange(newValues: FormikValues) {
     setFormValues(newValues);
   }
-  const handleSubmit = async (values: FormikValues) => {
-    if (write) {
-      write?.();
-    }
-  };
 
   const { config } = usePrepareContractWrite({
     address: TicketFactory,
@@ -92,7 +100,18 @@ function CreateEvent() {
     ],
   });
 
-  const { data: useContractWriteData, write } = useContractWrite(config);
+  const {
+    data: useContractWriteData,
+    write,
+    isError: useContractWriteError,
+  } = useContractWrite(config);
+
+  useEffect(() => {
+    if (useContractWriteError) {
+      removeNotification();
+      setIsLoading(false);
+    }
+  }, [useContractWriteError]);
 
   const {
     data: useWaitForTransactionData,
@@ -110,10 +129,9 @@ function CreateEvent() {
     setMetaDataLink(undefined);
     setImageUrl(undefined);
     setFile(undefined);
-    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    fileInput.value = '';
     const hash = useWaitForTransactionData?.transactionHash;
     formRef.current?.resetForm();
+    setIsLoading(false);
     addNotification({
       status: 'success',
       title: 'Event Creation Successful',
@@ -154,22 +172,40 @@ function CreateEvent() {
     }
   }, [isFetching]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      const file = files[0];
+  const handleSubmit = async (values: FormikValues) => {
+    if (write) {
+      write?.();
+    }
+  };
+
+  const onDrop = useCallback((acceptedFiles: any) => {
+    console.log(acceptedFiles);
+    if (acceptedFiles) {
+      const file = acceptedFiles[0];
       if (file) {
         setFile(file);
         setImageUrl(URL.createObjectURL(file));
       }
     }
-  };
+  }, []);
+
+  const {
+    getRootProps,
+    getInputProps,
+    isDragAccept,
+    isDragReject,
+    isDragActive,
+  } = useDropzone({
+    onDrop,
+    multiple: false,
+    accept: {
+      'image/*': ['.jpeg', '.jpg', '.png'],
+    },
+  });
 
   const handleRemoveImage = () => {
     setImageUrl(undefined);
     setFile(undefined);
-    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    fileInput.value = '';
   };
 
   const handleUpload = async () => {
@@ -193,10 +229,15 @@ function CreateEvent() {
       setMetaDataLink(res.data.postMetaData);
       addNotification({
         status: 'success',
-        title: 'Upload to IPFS successful, now MINT below',
+        title: 'IPFS upload successful, initiating minting process...',
       });
-      window.scrollTo(0, document.body.scrollHeight);
-      setIsLoading(false);
+
+      setTimeout(() => {
+        if (buttonRef?.current) {
+          buttonRef.current.click();
+        }
+      }, 1000);
+      // window.scrollTo(0, document.body.scrollHeight);
     } catch (error) {
       addNotification({
         status: 'error',
@@ -218,7 +259,7 @@ function CreateEvent() {
     }
     if (!values.supply) {
       errors.supply = '*Total supply is required';
-    } else if (values.supply < 1) {
+    } else if (values.supply < 0) {
       errors.supply = '*Total supply should be greater than 0';
     } else if (!Number.isInteger(Number(values.supply))) {
       errors.supply = '*Total supply should be a whole number';
@@ -261,9 +302,7 @@ function CreateEvent() {
         <Box display="flex" alignItems="center" mb={4}>
           <Text color="gray.500" mt={2} mb={4}>
             Please fill in the following fields to create your event as an
-            ERC-1155 NFT Token. There are two steps to complete this process:
-            first, upload your event metadata to IPFS; second, mint your event
-            NFT using the form below.
+            ERC-1155 NFT Token. Mint your NFT using the form below.
           </Text>
         </Box>
         <Formik
@@ -395,31 +434,62 @@ function CreateEvent() {
                       Event cover image will be displayed to buyers.
                     </Text>
 
-                    {/* <InputGroup> */}
                     <>
-                      <Button
-                        as="label"
-                        htmlFor="fileInput"
-                        variant="custom"
-                        backgroundColor="green.200"
-                        cursor="pointer"
-                        minWidth="0"
-                        color="#000"
-                        mt="2"
-                        _hover={{ backgroundColor: 'green.300' }}
-                        _active={{ backgroundColor: 'green.400' }}
-                      >
-                        Choose Image
-                        <Input
-                          id="fileInput"
-                          type="file"
-                          {...field}
-                          accept="image/*"
-                          placeholder="Choose an image"
-                          onChange={handleFileChange}
-                          style={{ display: 'none' }}
-                        />
-                      </Button>
+                      {!file && !imageUrl && (
+                        <Box
+                          {...getRootProps()}
+                          w="full"
+                          mt={4}
+                          bg="gray.900"
+                          borderRadius="md"
+                          justifyContent="center"
+                          borderWidth={1}
+                          borderStyle={isDragActive ? 'dashed' : 'solid'}
+                          borderColor={
+                            isDragAccept
+                              ? 'green.400'
+                              : isDragReject
+                              ? 'red.500'
+                              : 'gray.700'
+                          }
+                          alignItems="center"
+                          cursor="pointer"
+                          p={4}
+                        >
+                          <Input
+                            type="file"
+                            {...field}
+                            {...getInputProps()}
+                            accept="image/*"
+                            placeholder="Choose an image"
+                          />
+                          {isDragAccept && (
+                            <Text color="white" textAlign="center">
+                              Drop your image here
+                            </Text>
+                          )}
+                          {isDragReject && (
+                            <Text color="red" textAlign="center">
+                              File type not supported
+                            </Text>
+                          )}
+                          {!isDragActive && (
+                            <Text textAlign="center">
+                              Drag and drop an image file here or click to
+                              browse
+                            </Text>
+                          )}
+                          <Box
+                            mt={4}
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                          >
+                            <BsCardImage size={48} />
+                          </Box>
+                        </Box>
+                      )}
+
                       {imageUrl && (
                         <Box mt={4}>
                           <Box
@@ -514,7 +584,7 @@ function CreateEvent() {
                 )}
               </Field>
               <Box display="flex" justifyContent="flex-end" mt={8}>
-                {!metaDataLink && (
+                {
                   <Button
                     onClick={() => {
                       formik.validateForm().then((errors) => {
@@ -525,7 +595,7 @@ function CreateEvent() {
                           )
                         );
                         formik.setErrors(errors);
-                        if (Object.keys(errors).length === 0) {
+                        if (isEmpty(errors)) {
                           handleUpload();
                         }
                       });
@@ -533,18 +603,20 @@ function CreateEvent() {
                     colorScheme="green"
                     isLoading={isLoading}
                   >
-                    Upload to IPFS
+                    Mint Event
                   </Button>
-                )}
-                {metaDataLink && (
+                }
+                {
                   <Button
                     type="submit"
                     colorScheme="green"
                     isLoading={isFetching}
+                    ref={buttonRef}
+                    display="none"
                   >
                     Mint Event
                   </Button>
-                )}
+                }
               </Box>
             </Form>
           )}

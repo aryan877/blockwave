@@ -1,4 +1,5 @@
 import { Box, Flex, Spinner } from '@chakra-ui/react';
+import { isEmpty } from 'lodash';
 import { useEffect, useState } from 'react';
 import PostBox from '../../components/PostBox';
 import Posts, { PostProps } from '../../components/Posts';
@@ -13,7 +14,6 @@ const Home = () => {
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
     const getPosts = async () => {
       if (isComplete) {
         return;
@@ -27,12 +27,11 @@ const Home = () => {
           },
         }`;
         const result = await client.fetch(query, { lastId });
-        if (result.length === 0) {
+        if (isEmpty(result)) {
           setIsComplete(true);
           setIsFetching(false);
           return;
         }
-        console.log(result);
         setPosts((prevPosts) => [...prevPosts, ...result]);
         setIsFetching(false);
       } catch (error) {
@@ -48,6 +47,7 @@ const Home = () => {
     if (isFetching) {
       getPosts();
     }
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isFetching]);
 

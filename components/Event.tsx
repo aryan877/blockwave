@@ -180,7 +180,7 @@ function Event({ event }: { event: any }) {
   return (
     <>
       <Modal
-        blockScrollOnMount={false}
+        blockScrollOnMount={true}
         isOpen={isOpen}
         onClose={() => {
           onClose();

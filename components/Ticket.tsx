@@ -43,7 +43,7 @@ enum SaleStatus {
   AboutToStart = 'about_to_start',
   Ended = 'ended',
 }
-function Ticket({ event }: { event: any }) {
+function Ticket({ event, index }: { event: any; index: number }) {
   const [countdown, setCountdown] = useState('');
   const { address } = useAccount();
   const [status, setStatus] = useState<SaleStatus>(SaleStatus.AboutToStart);
@@ -89,13 +89,15 @@ function Ticket({ event }: { event: any }) {
           // borderBottomColor="gray.200"
         >
           <Text fontSize="xl" fontWeight="bold" color="white">
-            Your Ticket
+            Your Ticket #{index + 1}
           </Text>
         </Box>
         {isLoading ? (
           <Spinner m={4} size="md" />
         ) : error ? (
-          <Text>Could not fetch event metadata</Text>
+          <Text color="gray.700" m={4}>
+            Could not fetch event metadata
+          </Text>
         ) : (
           <VStack px="4" py="4" spacing={2} align="stretch">
             <Text color="gray.500" letterSpacing="wide" fontSize="sm">
@@ -150,13 +152,17 @@ function Ticket({ event }: { event: any }) {
             <Text color="gray.500" letterSpacing="wide" fontSize="sm">
               Quantity
             </Text>
-            <Text fontSize="md" fontWeight="bold" color="gray.700">
-              You own {balance.toString()} tickets. You paid{' '}
-              {ethers.utils
-                .formatEther(event[4].mul(parseInt(balance.toString())))
-                .toString()}{' '}
-              ETH in total.
-            </Text>
+            {balance && (
+              <Text fontSize="md" fontWeight="bold" color="gray.700">
+                You own {balance.toString()}{' '}
+                {parseInt(balance.toString()) === 1 ? 'ticket' : 'tickets'}. You
+                paid{' '}
+                {ethers.utils
+                  .formatEther(event[4].mul(parseInt(balance.toString())))
+                  .toString()}{' '}
+                ETH in total.
+              </Text>
+            )}
           </VStack>
         )}
       </Box>

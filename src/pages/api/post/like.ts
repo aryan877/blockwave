@@ -28,7 +28,7 @@ const likePost = async (req: NextApiRequest, res: NextApiResponse) => {
       });
     }
     return res.status(200).json({
-      message: 'Post liked successfully',
+      message: 'Post liked',
     });
   } catch (error) {
     console.error(error);

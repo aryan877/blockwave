@@ -53,10 +53,6 @@ const Layout = ({ children }: PropsWithChildren) => {
     setState({});
   };
 
-  // useEffect(() => {
-  //   logout();
-  // }, [address]);
-
   const [state, setState] = useState<{
     loggedInAddress?: string;
     error?: Error;
@@ -73,7 +69,6 @@ const Layout = ({ children }: PropsWithChildren) => {
       // set loading to true
       setState((x) => ({ ...x, error: undefined, loading: true }));
 
-      // Fetch random nonce, create SIWE message, and sign with wallet
       const nonceRes = await axios.get('/api/nonce');
       const message = new SiweMessage({
         domain: window.location.host,
@@ -205,8 +200,6 @@ const Layout = ({ children }: PropsWithChildren) => {
                   variant="solid"
                   rounded="full"
                   colorScheme="green"
-                  //   variant="custom"
-                  //   backgroundColor="green.400"
                   mr={3}
                   _hover={{ cursor: 'pointer' }}
                   rightIcon={<AiOutlineCaretDown />}

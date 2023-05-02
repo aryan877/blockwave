@@ -28,7 +28,7 @@ const unlikePost = async (req: NextApiRequest, res: NextApiResponse) => {
       likes.splice(index, 1);
       await client.patch(id).set({ likes }).commit();
       return res.status(200).json({
-        message: 'Post unliked successfully',
+        message: 'Post unliked',
       });
     }
     return res.status(404).json({ message: 'User did not like the post' });

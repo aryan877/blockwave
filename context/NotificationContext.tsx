@@ -5,6 +5,7 @@ import {
   CloseButton,
   Flex,
   Spinner,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { createContext, ReactNode, useContext, useReducer } from 'react';
 
@@ -74,12 +75,20 @@ export const NotificationProvider = ({
     dispatch({ type: 'REMOVE_NOTIFICATION' });
   };
 
+  const maxWidth = useBreakpointValue({ base: '100%', md: '50%' });
+
   return (
     <NotificationContext.Provider
       value={{ addNotification, removeNotification }}
     >
       {state.notification && (
-        <Box position="fixed" bottom={4} left={4} zIndex={999}>
+        <Box
+          position="fixed"
+          bottom={4}
+          left={4}
+          zIndex={999}
+          maxWidth={maxWidth}
+        >
           <Alert
             status={state.notification.status}
             variant="solid"
