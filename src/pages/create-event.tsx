@@ -44,7 +44,7 @@ import { TicketFactory } from '../../abi/address';
 import TicketABI from '../../abi/TicketFactory.json';
 import Logger from '../../components/Logger';
 import { useNotification } from '../../context/NotificationContext';
-import metadata from './api/event/metadata';
+import metadata from './api/nft_metadata';
 
 function CreateEvent() {
   const roundOffToNearest15Minutes = (date: Date): Date => {
@@ -225,7 +225,7 @@ function CreateEvent() {
       formData.append('description', formValues.description);
     }
     try {
-      const res = await axios.post('/api/event/metadata', formData);
+      const res = await axios.post('/api/nft_metadata', formData);
       setMetaDataLink(res.data.postMetaData);
       addNotification({
         status: 'success',
@@ -430,7 +430,7 @@ function CreateEvent() {
                     <FormLabel fontSize="lg">
                       Upload Event Cover Image
                     </FormLabel>
-                    <Text color="gray.500">
+                    <Text color="green.200">
                       Event cover image will be displayed to buyers.
                     </Text>
 
@@ -474,7 +474,7 @@ function CreateEvent() {
                             </Text>
                           )}
                           {!isDragActive && (
-                            <Text textAlign="center">
+                            <Text textAlign="center" color="gray.500">
                               Drag and drop an image file here or click to
                               browse
                             </Text>
@@ -484,6 +484,7 @@ function CreateEvent() {
                             display="flex"
                             justifyContent="center"
                             alignItems="center"
+                            color="green.200"
                           >
                             <BsCardImage size={48} />
                           </Box>

@@ -4,6 +4,7 @@ import fs from 'fs';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { join } from 'path';
+import client from '../../../../lib/sanityBackendClient';
 import { ironOptions } from '../../../../utils';
 const sphToken = process.env.SPHERON_TOKEN as string;
 const sphClient = new SpheronClient({ token: sphToken });
@@ -41,15 +42,15 @@ const uploadEventMetadata = async (
   //verify wallet signature here, only if signature is valid then the user can post
   try {
     if (req.method !== 'POST') {
-      res.status(405).json({ message: 'Method not allowed' });
+      return res.status(405).json({ message: 'Method not allowed' });
     }
     if (!req.session.siwe?.address) {
       return res.status(422).json({ message: 'Invalid token' });
     }
     const { fields, files } = await readForm(req, true);
-    if (!fields.name || !fields.description || !files.image) {
-      res.status(406).json({
-        message: 'event image, name and description are required',
+    if (!fields.name && !files.image) {
+      return res.status(406).json({
+        message: 'name cannot be blank',
       });
     }
     let postImage = '';
@@ -64,36 +65,21 @@ const uploadEventMetadata = async (
           },
         });
       postImage = `${protocolLink}/${files.image.newFilename}`; // set postImage to the uploaded image link
+      const response = await client
+        .patch(req.session.siwe.address)
+        .set({ profileImage: postImage })
+        .set({ name: fields.name })
+        .commit();
+      return res.status(201).json({ response });
     }
-    //SAVE JSON
-    const fileName = `file-${Math.floor(Math.random() * 100000)}.json`;
-    const metaData = {
-      name: fields.name,
-      description: fields.description,
-      image: postImage,
-    };
 
-    const filePath = join('/tmp', fileName);
-    fs.writeFileSync(filePath, JSON.stringify(metaData));
-    let postMetaData = '';
-    if (fields.description && fields.name) {
-      const { uploadId, bucketId, protocolLink, dynamicLinks } =
-        await sphClient.upload(`${filePath}`, {
-          protocol: ProtocolEnum.IPFS,
-          name: fileName,
-          onUploadInitiated: (uploadId) => {},
-          onChunkUploaded: (uploadedSize, totalSize) => {
-            currentlyUploaded += uploadedSize;
-          },
-        });
-      postMetaData = `${protocolLink}/${fileName}`; // set postImage to the uploaded image link
-    }
-    res.status(201).json({ postMetaData });
-    // setTimeout(() => {
-    //   res.json({ postMetaData: 'simulating ipfs upload' });
-    // }, 1000); // sleep for 2 seconds
+    const response = await client
+      .patch(req.session.siwe.address)
+      .set({ name: fields.name })
+      .commit();
+    return res.status(201).json({ response });
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 

@@ -88,7 +88,7 @@ function MyTickets() {
             </>
           )}
           {events?.map((event: any, index: number) => {
-            return <Ticket key={event[6]} index={index} event={event} />;
+            return <Ticket key={event[0]} index={index} event={event} />;
           })}
         </VStack>
       )}

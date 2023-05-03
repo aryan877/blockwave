@@ -96,23 +96,19 @@ export const NotificationProvider = ({
             borderRadius="md"
             boxShadow="md"
             alignItems="flex-start"
-            pr={4}
           >
             {state.notification.status === 'info' ? (
               <Spinner size="sm" mr={2} />
             ) : (
               <AlertIcon />
             )}
-            <Box ml={2}>
+            <Box>
               <Box fontWeight="bold">{state.notification.title}</Box>
               <Box>{state.notification.description}</Box>
             </Box>
-            <CloseButton
-              size="sm"
-              onClick={removeNotification}
-              right="0px"
-              top="0px"
-            />
+            <Box ml={2}>
+              <CloseButton size="sm" onClick={removeNotification} />
+            </Box>
           </Alert>
         </Box>
       )}

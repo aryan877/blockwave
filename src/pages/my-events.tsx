@@ -42,10 +42,6 @@ function MyEvents() {
     setEvents(useContractReadEvents);
   }, [useContractReadEvents]);
 
-  useEffect(() => {
-    console.log(events);
-  }, [events]);
-
   return (
     <Box width="full" maxWidth="2xl" p={4}>
       <Button mb={4} onClick={() => router.back()} w="fit-content">
@@ -90,7 +86,7 @@ function MyEvents() {
           </>
         )}
         {events?.map((event: any) => {
-          return <Event key={event[6]} event={event} />;
+          return <Event key={event[0]} event={event} />;
         })}
       </VStack>
     </Box>

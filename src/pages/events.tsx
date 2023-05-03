@@ -64,7 +64,7 @@ function Events() {
       </Box>
       <VStack spacing={4} alignItems="stretch">
         {events?.map((event: any) => {
-          return <Event key={event[6]} event={event} />;
+          return <Event key={event[0]} event={event} />;
         })}
       </VStack>
     </Box>

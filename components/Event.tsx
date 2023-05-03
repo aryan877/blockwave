@@ -39,6 +39,7 @@ import {
 } from 'wagmi';
 import { TicketFactory } from '../abi/address';
 import TicketABI from '../abi/TicketFactory.json';
+import client from '../lib/sanityFrontendClient';
 enum SaleStatus {
   Active = 'active',
   AboutToStart = 'about_to_start',
@@ -48,6 +49,7 @@ function Event({ event }: { event: any }) {
   const [countdown, setCountdown] = useState('');
   const { address } = useAccount();
   const [status, setStatus] = useState<SaleStatus>(SaleStatus.AboutToStart);
+
   const {
     isLoading,
     error,
@@ -58,6 +60,24 @@ function Event({ event }: { event: any }) {
   });
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [profilePicture, setProfilePicture] = useState(null);
+  useEffect(() => {
+    if (!event.creator) {
+      return;
+    }
+    const query = `*[_type == "users" && _id == $userId][0].profileImage`;
+    const userId = event.creator;
+    client
+      .fetch(query, { userId })
+      .then((result) => {
+        console.log(userId);
+        console.log(result);
+        setProfilePicture(result);
+      })
+      .catch((error) => {
+        console.error('Error fetching profile picture:', error);
+      });
+  }, [event.creator]);
 
   useEffect(() => {
     const startTime: Date = new Date(event[5].toNumber() * 1000);
@@ -346,10 +366,7 @@ function Event({ event }: { event: any }) {
               </Text>
               <Link href={`/profile/${event.creator}`}>
                 <HStack>
-                  <Avatar
-                    size="sm"
-                    src={`https://api.dicebear.com/6.x/adventurer/svg?seed=${event.creator}`}
-                  />
+                  {profilePicture && <Avatar size="sm" src={profilePicture} />}
                   {address !== event.creator ? (
                     <Text
                       fontWeight="semibold"

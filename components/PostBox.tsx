@@ -60,10 +60,6 @@ const PostBox = ({ setPosts }: setPostProps) => {
         //remove file
         setImageUrl(undefined);
         setFile(undefined);
-        const fileInput = document.getElementById(
-          'fileInput'
-        ) as HTMLInputElement;
-        fileInput.value = '';
         //reset value
         setValue('');
       })
@@ -82,8 +78,6 @@ const PostBox = ({ setPosts }: setPostProps) => {
   const handleRemoveImage = () => {
     setImageUrl(undefined);
     setFile(undefined);
-    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    fileInput.value = '';
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,4 +1,10 @@
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Avatar,
   Box,
   Button,
@@ -11,6 +17,7 @@ import {
   Stack,
   Text,
   Tooltip,
+  useDisclosure,
   VStack,
 } from '@chakra-ui/react';
 import axios from 'axios';
@@ -105,6 +112,7 @@ function Post({
   const deleteHandler = async () => {
     addNotification({ status: 'info', title: 'Deleting post...' });
     try {
+      onClose();
       const res = await axios.post('/api/post/delete', {
         id: post._id,
       });
@@ -115,6 +123,7 @@ function Post({
         autoClose: true,
       });
     } catch (err) {
+      onClose();
       addNotification({
         status: 'error',
         title: (err as Error).message,
@@ -122,6 +131,11 @@ function Post({
       });
     }
   };
+
+  //delete post handlers
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  //
 
   return (
     <Flex
@@ -160,18 +174,47 @@ function Post({
             </Box>
           </HStack>
           {post.author?.walletAddress === address && (
-            <Tooltip label="Delete post" placement="top">
-              <Button
-                onClick={deleteHandler}
-                alignSelf="flex-end"
-                variant="ghost"
-                colorScheme="red"
-                size="sm"
-                aria-label="Delete post"
+            <>
+              <Tooltip label="Delete post" placement="top">
+                <Button
+                  onClick={onOpen}
+                  alignSelf="flex-end"
+                  variant="ghost"
+                  colorScheme="red"
+                  size="sm"
+                  aria-label="Delete post"
+                >
+                  <Icon as={FaTrash} boxSize={4} />
+                </Button>
+              </Tooltip>
+
+              <AlertDialog
+                isOpen={isOpen}
+                leastDestructiveRef={cancelRef}
+                onClose={onClose}
               >
-                <Icon as={FaTrash} boxSize={4} />
-              </Button>
-            </Tooltip>
+                <AlertDialogOverlay>
+                  <AlertDialogContent mx={4}>
+                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                      Delete Post
+                    </AlertDialogHeader>
+
+                    <AlertDialogBody>
+                      Are you sure? You can't undo this action afterwards.
+                    </AlertDialogBody>
+
+                    <AlertDialogFooter>
+                      <Button ref={cancelRef} onClick={onClose}>
+                        Cancel
+                      </Button>
+                      <Button colorScheme="red" onClick={deleteHandler} ml={3}>
+                        Delete
+                      </Button>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialogOverlay>
+              </AlertDialog>
+            </>
           )}
         </Flex>
         <Box display={{ base: 'block', md: 'none' }} mt="2">
