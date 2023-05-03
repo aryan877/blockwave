@@ -8,7 +8,6 @@ import client from '../../lib/sanityFrontendClient';
 
 const Home = () => {
   const [posts, setPosts] = useState<PostProps[]>([]);
-  // const [myPosts, setMyPosts] = useState<PostProps[]>([]);
   const [isFetching, setIsFetching] = useState(true);
   const { addNotification } = useNotification();
   const [isComplete, setIsComplete] = useState(false);
@@ -34,7 +33,7 @@ const Home = () => {
         }
         setPosts((prevPosts) => [...prevPosts, ...result]);
         setIsFetching(false);
-      } catch (error) {
+      } catch (error: any) {
         setIsFetching(false);
         addNotification({
           status: 'error',
@@ -66,7 +65,6 @@ const Home = () => {
     <Box width="full" maxWidth="2xl">
       <PostBox setPosts={setPosts} />
       <>
-        {/* <Posts posts={myPosts} /> */}
         <Posts setPosts={setPosts} posts={posts} />
         {isFetching && (
           <Flex justifyContent="center" alignItems="center" mt={8}>

@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Badge,
   Box,
   Button,
   Center,
@@ -15,6 +16,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
+import { css } from '@emotion/react';
 import dayjs from 'dayjs';
 import { utils } from 'ethers';
 import { isEmpty } from 'lodash';
@@ -24,14 +26,24 @@ import { useEffect, useState } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 import { useQuery } from 'react-query';
 import { useAccount, useContractRead } from 'wagmi';
-import { TicketFactory } from '../../../abi/address';
+import { ProfileImage, TicketFactory } from '../../../abi/address';
+import ProfileABI from '../../../abi/Profileimage.json';
 import TicketABI from '../../../abi/TicketFactory.json';
 import EditProfile from '../../../components/EditProfileModal';
 import Event from '../../../components/Event';
-import Posts from '../../../components/Posts';
+import Posts, { PostProps } from '../../../components/Posts';
 import TipAccount from '../../../components/TipAccount';
 import { useNotification } from '../../../context/NotificationContext';
 import client from '../../../lib/sanityFrontendClient';
+
+const hexagonStyle = css`
+clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
+border: '4px solid #34D399',
+backgroundRepeat: 'no-repeat',
+backgroundPosition: 'center center',
+backgroundSize: 'cover',
+`;
+
 interface User {
   _type: 'users';
   _id: string;
@@ -40,19 +52,21 @@ interface User {
   profileImage?: string;
   walletAddress: string;
   _createdAt: Date;
+  nftId: number;
 }
 function Profile() {
   const router = useRouter();
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<PostProps[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [isLoadingPosts, setIsLoadingPosts] = useState(true);
   const [update, setUpdate] = useState<Boolean>(false);
+  const [isNftHolder, SetIsNftHolder] = useState(false);
+
   // const [tabIndex, setTabIndex] = useState(0);
   const slug = router.query.slug;
   const { addNotification } = useNotification();
   const { address } = useAccount();
-  console.log(user);
 
   const [events, setEvents] = useState<any>([]);
   const { data: useContractReadEvents, isFetching } = useContractRead({
@@ -115,6 +129,28 @@ function Profile() {
     getUser();
   }, [slug, update]);
 
+  const { data: useContractReadOwner } = useContractRead({
+    address: ProfileImage,
+    abi: ProfileABI.output.abi,
+    functionName: 'ownerOf',
+    args: [user?.nftId],
+  });
+
+  useEffect(() => {
+    console.log(useContractReadOwner, user?._id, '2');
+    if (
+      user &&
+      useContractReadOwner === user?._id &&
+      !isEmpty(user?._id) &&
+      !isEmpty(useContractReadOwner) &&
+      user?.nftId >= 0
+    ) {
+      SetIsNftHolder(true);
+    } else {
+      SetIsNftHolder(false);
+    }
+  }, [useContractReadOwner, user]);
+
   const {
     isOpen: editProfileIsOpen,
     onOpen: editProfileOnOpen,
@@ -152,8 +188,11 @@ function Profile() {
                 src={user?.profileImage}
                 borderWidth={4}
                 borderStyle="solid"
-                borderColor="white"
+                borderColor={isNftHolder ? 'green.200' : 'white'}
+                borderRadius={isNftHolder ? 0 : 'full'}
+                css={isNftHolder && hexagonStyle}
               />
+              {isNftHolder && <Badge colorScheme="green">NFT Profile</Badge>}
             </VStack>
             <Text fontSize="xl" fontWeight="bold">
               {user?.name}
@@ -168,8 +207,12 @@ function Profile() {
               <>
                 <Button
                   mt={4}
-                  borderRadius="md"
-                  colorScheme="green"
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  bg="#000"
+                  _hover={{ bg: '#000' }}
+                  borderColor="green.200"
+                  color="green.200"
                   onClick={editProfileOnOpen}
                 >
                   Edit Profile

@@ -67,7 +67,7 @@ const PostBox = ({ setPosts }: setPostProps) => {
         addNotification({
           status: 'error',
           title: 'Error',
-          description: error.message,
+          description: error.response.data.message,
           autoClose: true,
         });
       })
@@ -112,7 +112,7 @@ const PostBox = ({ setPosts }: setPostProps) => {
             value={value}
             size="lg"
             mb="4"
-            focusBorderColor="green.400"
+            focusBorderColor="green.200"
             _placeholder={{ color: 'gray.500' }}
             variant="flushed"
             onChange={(event) => setValue(event.target.value)}

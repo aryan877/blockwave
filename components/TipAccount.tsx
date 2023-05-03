@@ -22,9 +22,11 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import React from 'react';
+import React, { useState } from 'react';
 
 function TipAccount({ isOpen, onClose }: any) {
+  const [amount, setAmount] = useState<string>('');
+
   return (
     <Modal
       isCentered
@@ -60,18 +62,7 @@ function TipAccount({ isOpen, onClose }: any) {
               <BsDash />
             </Button>
 
-            <Input
-              type="number"
-              value={numTickets}
-              onChange={handleNumTicketsChange}
-              min="1"
-              width="4rem"
-              textAlign="center"
-              borderRadius="md"
-              mr={2}
-              readOnly={isFetching || isSuccess}
-              style={{ minWidth: 0 }}
-            />
+  
             <Button onClick={handleIncrement} mr={2}>
               <BsPlus />
             </Button>
@@ -95,16 +86,38 @@ function TipAccount({ isOpen, onClose }: any) {
               Error, could not complete transaction, try again.
             </Text>
           )} */}
+          <Input
+            type="text"
+            value={amount}
+            onChange={(e) => {
+              const value = e.target.value.trim();
+              if (/^\d*\.?\d*$/.test(value)) {
+                // only allow numbers and decimal point
+                setAmount(value);
+              }
+            }}
+            width="4rem"
+            textAlign="center"
+            borderRadius="md"
+            mr={2}
+            w="full"
+            fontSize="lg"
+            _placeholder={{ color: 'gray.400' }}
+            placeholder="Enter tip amount in eth"
+            style={{ minWidth: 0 }}
+            focusBorderColor="purple.200"
+          />
         </ModalBody>
 
         <ModalFooter>
-          {/* <Button
+          <Button
             colorScheme="purple"
-            onClick={handleSubmit}
-            isLoading={isFetching}
+            // onClick={handleSubmit}
+            // isLoading={isFetching}
           >
-            {isFetching ? <Spinner size="sm" /> : 'Buy'}
-          </Button> */}
+            Send
+            {/* {isFetching ? <Spinner size="sm" /> : 'Buy'} */}
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

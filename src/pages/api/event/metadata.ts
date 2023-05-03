@@ -1,8 +1,9 @@
 import { ProtocolEnum, SpheronClient } from '@spheron/storage';
 import formidable from 'formidable';
+import fs from 'fs';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
-import client from '../../../../lib/sanityBackendClient';
+import { join } from 'path';
 import { ironOptions } from '../../../../utils';
 const sphToken = process.env.SPHERON_TOKEN as string;
 const sphClient = new SpheronClient({ token: sphToken });
@@ -33,7 +34,10 @@ const readForm = (
   });
 };
 
-const updateProfile = async (req: NextApiRequest, res: NextApiResponse) => {
+const uploadEventMetadata = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+) => {
   //verify wallet signature here, only if signature is valid then the user can post
   try {
     if (req.method !== 'POST') {
@@ -43,12 +47,12 @@ const updateProfile = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(422).json({ message: 'Invalid token' });
     }
     const { fields, files } = await readForm(req, true);
-    if (!fields.name) {
+    if (!fields.name || !fields.description || !files.image) {
       return res.status(406).json({
-        message: 'name cannot be blank',
+        message: 'event image, name and description are required',
       });
     }
-    let postImage = '';
+    let eventImage = '';
     if (files.image) {
       const { uploadId, bucketId, protocolLink, dynamicLinks } =
         await sphClient.upload(`${files.image.filepath}`, {
@@ -59,24 +63,38 @@ const updateProfile = async (req: NextApiRequest, res: NextApiResponse) => {
             currentlyUploaded += uploadedSize;
           },
         });
-      postImage = `${protocolLink}/${files.image.newFilename}`; // set postImage to the uploaded image link
-      const response = await client
-        .patch(req.session.siwe.address)
-        .set({ profileImage: postImage })
-        .set({ name: fields.name })
-        .unset(['nftId']) // remove the nftId property
-        .commit();
-      return res.status(201).json({ response });
+      eventImage = `${protocolLink}/${files.image.newFilename}`; // set eventImage to the uploaded image link
     }
+    //SAVE JSON
+    const fileName = `file-${Math.floor(Math.random() * 100000)}.json`;
+    const metaData = {
+      name: fields.name,
+      description: fields.description,
+      image: eventImage,
+    };
 
-    const response = await client
-      .patch(req.session.siwe.address)
-      .set({ name: fields.name })
-      .commit();
-    return res.status(201).json({ response });
+    const filePath = join('/tmp', fileName);
+    fs.writeFileSync(filePath, JSON.stringify(metaData));
+    let eventMetaData = '';
+    if (fields.description && fields.name) {
+      const { uploadId, bucketId, protocolLink, dynamicLinks } =
+        await sphClient.upload(`${filePath}`, {
+          protocol: ProtocolEnum.IPFS,
+          name: fileName,
+          onUploadInitiated: (uploadId) => {},
+          onChunkUploaded: (uploadedSize, totalSize) => {
+            currentlyUploaded += uploadedSize;
+          },
+        });
+      eventMetaData = `${protocolLink}/${fileName}`; // set eventImage to the uploaded image link
+    }
+    return res.status(201).json({ eventMetaData });
+    // setTimeout(() => {
+    //   res.json({ postMetaData: 'simulating ipfs upload' });
+    // }, 1000); // sleep for 2 seconds
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export default withIronSessionApiRoute(updateProfile, ironOptions);
+export default withIronSessionApiRoute(uploadEventMetadata, ironOptions);

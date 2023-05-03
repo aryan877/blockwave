@@ -10,8 +10,7 @@ const unlikePost = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(422).json({ message: 'Invalid token' });
     }
     if (req.method !== 'POST') {
-      res.status(405).json({ message: 'Method not allowed' });
-      return;
+      return res.status(405).json({ message: 'Method not allowed' });
     }
     const post = await client.getDocument(id);
     if (!post) {

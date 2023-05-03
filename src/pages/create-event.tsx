@@ -9,6 +9,11 @@ import {
   Text,
   Textarea,
 } from '@chakra-ui/react';
+import {
+  prepareWriteContract,
+  waitForTransaction,
+  writeContract,
+} from '@wagmi/core';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import {
@@ -24,27 +29,16 @@ import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useDropzone } from 'react-dropzone';
-import { BsCardImage } from 'react-icons/bs';
+import { Accept, useDropzone } from 'react-dropzone';
+import { FaImages } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
 import { IoImagesOutline } from 'react-icons/io5';
-import { MdClose, MdImage } from 'react-icons/md';
+import { MdClose } from 'react-icons/md';
 import { start } from 'repl';
 
-import { Grenze } from 'next/font/google';
-import { Accept } from 'react-dropzone';
-import {
-  useAccount,
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
 import { TicketFactory } from '../../abi/address';
 import TicketABI from '../../abi/TicketFactory.json';
-import Logger from '../../components/Logger';
 import { useNotification } from '../../context/NotificationContext';
-import metadata from './api/nft_metadata';
 
 function CreateEvent() {
   const roundOffToNearest15Minutes = (date: Date): Date => {
@@ -60,11 +54,7 @@ function CreateEvent() {
   };
   const formRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { address } = useAccount();
   const { addNotification, removeNotification } = useNotification();
-  const [metaDataLink, setMetaDataLink] = useState<string | undefined>(
-    undefined
-  );
   const [file, setFile] = useState<File | undefined>(undefined);
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const [startDate, setStartDate] = useState<Date>(
@@ -73,110 +63,6 @@ function CreateEvent() {
   const [endDate, setEndDate] = useState<Date>(
     roundOffToNearest15Minutes(new Date(Date.now() + 60 * 60 * 1000))
   );
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  const [formValues, setFormValues] = useState<FormikValues>({});
-  function handleFormValuesChange(newValues: FormikValues) {
-    setFormValues(newValues);
-  }
-
-  const { config } = usePrepareContractWrite({
-    address: TicketFactory,
-    abi: TicketABI.output.abi,
-    functionName: 'createTicket',
-    args: [
-      formValues.supply || '',
-      ethers.utils.parseEther(formValues.price?.toString() || '0'),
-      ethers.BigNumber.from(
-        Math.floor(startDate.getTime() / 1000).toString() || ''
-      ),
-      ethers.BigNumber.from(
-        Math.floor(endDate.getTime() / 1000).toString() || ''
-      ),
-      metaDataLink || '',
-      {
-        gasLimit: 1300000,
-      },
-    ],
-  });
-
-  const {
-    data: useContractWriteData,
-    write,
-    isError: useContractWriteError,
-  } = useContractWrite(config);
-
-  useEffect(() => {
-    if (useContractWriteError) {
-      removeNotification();
-      setIsLoading(false);
-    }
-  }, [useContractWriteError]);
-
-  const {
-    data: useWaitForTransactionData,
-    isSuccess,
-    isFetching,
-    isError,
-  } = useWaitForTransaction({
-    hash: useContractWriteData?.hash,
-  });
-
-  useEffect(() => {
-    if (!useWaitForTransactionData?.transactionHash) {
-      return;
-    }
-    setMetaDataLink(undefined);
-    setImageUrl(undefined);
-    setFile(undefined);
-    const hash = useWaitForTransactionData?.transactionHash;
-    formRef.current?.resetForm();
-    setIsLoading(false);
-    addNotification({
-      status: 'success',
-      title: 'Event Creation Successful',
-      description: `Your event has been successfully created. Transaction hash: ${hash.slice(
-        0,
-        6
-      )}....${hash.slice(-6)}. You can check your event in the My Events tab.`,
-    });
-  }, [useWaitForTransactionData?.transactionHash]);
-
-  useEffect(() => {
-    if (isError) {
-      addNotification({
-        status: 'error',
-        title: 'Something went wrong',
-        description: `Transaction failed`,
-      });
-    }
-  }, [isError]);
-
-  useEffect(() => {
-    if (
-      isFetching &&
-      metaDataLink &&
-      formValues.supply &&
-      formValues.price &&
-      startDate &&
-      endDate
-    ) {
-      addNotification({
-        status: 'info',
-        title: 'Waiting for confirmation',
-        description: `Transaction hash: ${useContractWriteData?.hash.slice(
-          0,
-          6
-        )}....${useContractWriteData?.hash.slice(-6)}`,
-      });
-    }
-  }, [isFetching]);
-
-  const handleSubmit = async (values: FormikValues) => {
-    if (write) {
-      write?.();
-    }
-  };
 
   const onDrop = useCallback((acceptedFiles: any) => {
     console.log(acceptedFiles);
@@ -208,46 +94,95 @@ function CreateEvent() {
     setFile(undefined);
   };
 
-  const handleUpload = async () => {
+  const handleSubmit = async (values: FormikValues) => {
     setIsLoading(true);
     addNotification({
       status: 'info',
-      title: 'Uploading metadata to IPFS',
+      title: 'Uploading metadata to ipfs...',
     });
     const formData = new FormData();
     if (file) {
       formData.append('image', file);
     }
-    if (formValues.name) {
-      formData.append('name', formValues.name);
+    if (values.name) {
+      formData.append('name', values.name);
     }
-    if (formValues.description) {
-      formData.append('description', formValues.description);
+    if (values.description) {
+      formData.append('description', values.description);
     }
     try {
-      const res = await axios.post('/api/nft_metadata', formData);
-      setMetaDataLink(res.data.postMetaData);
+      const res = await axios.post('/api/event/metadata', formData);
+      const eventLink = res.data.eventMetaData;
       addNotification({
         status: 'success',
-        title: 'IPFS upload successful, initiating minting process...',
+        title: 'IPFS upload successful. Initiating mint process...',
+        description: 'Initiating mint process...',
       });
-
-      setTimeout(() => {
-        if (buttonRef?.current) {
-          buttonRef.current.click();
-        }
-      }, 1000);
-      // window.scrollTo(0, document.body.scrollHeight);
-    } catch (error) {
+      //web3 stuff from here onwards to create event in blockwave contract
+      const config = await prepareWriteContract({
+        address: TicketFactory,
+        abi: TicketABI.output.abi,
+        functionName: 'createTicket',
+        args: [
+          values.supply,
+          ethers.utils.parseEther(values.price?.toString()),
+          ethers.BigNumber.from(
+            Math.floor(startDate.getTime() / 1000).toString()
+          ),
+          ethers.BigNumber.from(
+            Math.floor(endDate.getTime() / 1000).toString()
+          ),
+          eventLink,
+          {
+            gasLimit: 1300000,
+          },
+        ],
+      });
+      const { hash } = await writeContract(config);
       addNotification({
-        status: 'error',
-        title: 'Error',
-        description: (error as Error).message,
-        autoClose: true,
+        status: 'info',
+        title: 'Waiting for confirmation',
+        description: `Transaction hash: ${hash?.slice(0, 6)}....${hash?.slice(
+          -6
+        )}`,
       });
+      const data = await waitForTransaction({
+        hash,
+      });
+      setImageUrl(undefined);
+      setFile(undefined);
+      setIsLoading(false);
+      formRef.current?.resetForm();
+      addNotification({
+        status: 'success',
+        title: 'Event Creation Successful',
+        description: `Your event has been successfully created. Transaction hash: ${hash.slice(
+          0,
+          6
+        )}....${hash.slice(
+          -6
+        )}. You can check your event in the My Events tab.`,
+      });
+    } catch (error: any) {
+      if (error?.reponse?.data?.message) {
+        addNotification({
+          status: 'error',
+          title: 'Error',
+          description: error.response.data.message,
+          autoClose: true,
+        });
+      } else {
+        addNotification({
+          status: 'error',
+          title: 'Error',
+          description: error.message,
+          autoClose: true,
+        });
+      }
       setIsLoading(false);
     }
   };
+
   const router = useRouter();
   const validate = (values: FormikValues) => {
     const errors: FormikValues = {};
@@ -321,7 +256,6 @@ function CreateEvent() {
         >
           {(formik) => (
             <Form>
-              <Logger onValuesChanged={handleFormValuesChange} />
               <Field name="name">
                 {({ field, form }: { field: any; form: any }) => (
                   <FormControl
@@ -336,7 +270,7 @@ function CreateEvent() {
                       size="lg"
                       mb="4"
                       autoComplete="off"
-                      focusBorderColor="green.400"
+                      focusBorderColor="green.200"
                       // variant="flushed"
                       placeholder="Enter event name"
                     />
@@ -387,7 +321,7 @@ function CreateEvent() {
                       size="lg"
                       autoComplete="off"
                       mb="4"
-                      focusBorderColor="green.400"
+                      focusBorderColor="green.200"
                       // variant="flushed"
                       placeholder="Enter total ticket supply"
                     />
@@ -411,7 +345,7 @@ function CreateEvent() {
                       autoComplete="off"
                       size="lg"
                       mb="4"
-                      focusBorderColor="green.400"
+                      focusBorderColor="green.200"
                       // variant="flushed"
                       placeholder="Enter price per ticket (ETH)"
                     />
@@ -486,7 +420,7 @@ function CreateEvent() {
                             alignItems="center"
                             color="green.200"
                           >
-                            <BsCardImage size={48} />
+                            <FaImages size={48} />
                           </Box>
                         </Box>
                       )}
@@ -585,39 +519,9 @@ function CreateEvent() {
                 )}
               </Field>
               <Box display="flex" justifyContent="flex-end" mt={8}>
-                {
-                  <Button
-                    onClick={() => {
-                      formik.validateForm().then((errors) => {
-                        formik.setTouched(
-                          Object.keys(formik.values).reduce(
-                            (acc, key) => ({ ...acc, [key]: true }),
-                            {}
-                          )
-                        );
-                        formik.setErrors(errors);
-                        if (isEmpty(errors)) {
-                          handleUpload();
-                        }
-                      });
-                    }}
-                    colorScheme="green"
-                    isLoading={isLoading}
-                  >
-                    Mint Event
-                  </Button>
-                }
-                {
-                  <Button
-                    type="submit"
-                    colorScheme="green"
-                    isLoading={isFetching}
-                    ref={buttonRef}
-                    display="none"
-                  >
-                    Mint Event
-                  </Button>
-                }
+                <Button type="submit" colorScheme="green" isLoading={isLoading}>
+                  Mint Event
+                </Button>
               </Box>
             </Form>
           )}

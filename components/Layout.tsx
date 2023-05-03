@@ -55,7 +55,7 @@ const Layout = ({ children }: PropsWithChildren) => {
 
   const [state, setState] = useState<{
     loggedInAddress?: string;
-    error?: Error;
+    error?: any;
     loading?: boolean;
   }>({});
   const router = useRouter();
@@ -108,8 +108,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         description: verifyRes.data.message,
         autoClose: true,
       });
-      // @ts-expect-error we are assigning a type to error
-    } catch (error: Error) {
+    } catch (error: any) {
       setState((prev) => ({ ...prev, error, loading: false }));
       addNotification({
         status: 'error',

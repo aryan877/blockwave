@@ -1,4 +1,10 @@
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Avatar,
   Box,
   Button,
@@ -32,17 +38,28 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import axios from 'axios';
+import {
+  prepareWriteContract,
+  waitForTransaction,
+  writeContract,
+} from '@wagmi/core';
+import axios, { AxiosError } from 'axios';
+import { utils } from 'ethers';
 import { isEmpty } from 'lodash';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Cropper from 'react-easy-crop';
 import { FiArrowLeft } from 'react-icons/fi';
 import { MdCameraAlt } from 'react-icons/md';
+import { useAccount } from 'wagmi';
+import { setLocale } from 'yup';
+import { ProfileImage } from '../abi/address';
+import ProfileABI from '../abi/Profileimage.json';
 import getCroppedImg from './cropImage.js';
 function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
   const router = useRouter();
+  const { address } = useAccount();
   //mint nft here or give option to upload profile pic as normal
   const [name, setName] = useState(user.name);
   const [file, setFile] = useState<File | undefined>(undefined);
@@ -55,7 +72,7 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
   const [croppedArea, setCroppedArea] = useState<any>(null);
   const [zoom, setZoom] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState<string | null>(null);
+  const [isInfo, setIsInfo] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string | null>(null);
   const [value, setValue] = React.useState('1');
   const onCropComplete = useCallback(
@@ -87,6 +104,7 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
     }
   }, []);
 
+  //handle submit for basic upload and open confirmation modal for NFT upload
   const handleSubmit = async () => {
     const formData = new FormData();
     if (file) {
@@ -95,38 +113,94 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
     if (name) {
       formData.append('name', name);
     }
-    setIsLoading(true);
     try {
-      //check if nft upload
-      //if not call this endpoint
+      //check if regular upload
       if (value === '1') {
+        setIsLoading(true);
+        if (!file) {
+          setIsInfo('saving changes...');
+        } else {
+          setIsInfo('uploading metadata to ipfs...');
+        }
         const res = await axios.post('/api/profile/update', formData);
         reset();
         setUpdate((prev: boolean) => !prev);
-      } else if (value === '2') {
-        //if yes proceed
-        //first we upload metadata to ipfs and return the link
-        //now we mint nft here
-        //then we save the in sanity the id of this nft
-        //on inital render we will check if there is an nft id that is associated with the user, we will
-        // select this id, and verify the profile is the owner of this id, if he is the owner then
-        // we will dispay the nft picture but if he's not then we display his original photo
       }
-    } catch (error) {
-      setIsError((error as Error).message);
-      console.log(error);
+      //if NFT upload then open modal and let nftHandler take over from there
+      else if (value === '2') {
+        onOpenNFT();
+      }
+    } catch (error: any) {
+      setIsInfo(error.response.data.message);
+    } finally {
+      setIsLoading(false);
+      setIsInfo(null);
+    }
+  };
+
+  const nftHandler = async () => {
+    //first upload the image to ipfs & save hash in db
+    //save it as metadata with json and upload the metadata to ipfs and return the link
+    onCloseNFT();
+    const formData = new FormData();
+    if (file) {
+      formData.append('image', file);
+    } else if (!file && imageUrl) {
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const tempFile = new File([blob], 'temp', { type: blob.type });
+        formData.append('image', tempFile);
+      } catch (error) {
+        setIsInfo('Error creating temporary file...');
+      }
+    }
+    if (name) {
+      formData.append('name', name);
+    }
+    try {
+      setIsLoading(true);
+      setIsInfo('uploading metadata to ipfs...');
+      const res = await axios.post('/api/profile/metadata', formData);
+      const config = await prepareWriteContract({
+        address: ProfileImage,
+        abi: ProfileABI.output.abi,
+        functionName: 'mint',
+        args: [address, res.data.postMetaData],
+      });
+      const { hash } = await writeContract(config);
+      setIsInfo('awaiting completion of mint...');
+      const data = await waitForTransaction({
+        hash,
+      });
+      const nftId = parseInt(utils.hexStripZeros(data.logs[1].data));
+      if (!(nftId >= 0 && Number.isInteger(nftId))) {
+        throw new Error('Something went wrong. Please try again.');
+      }
+      await axios.post('/api/profile/save_nft_id', { nftId });
+      setIsInfo('Successfully updated');
+      reset();
+      setUpdate((prev: boolean) => !prev);
+    } catch (error: any) {
+      if (error?.response?.data?.message) {
+        setIsInfo(error.response.data.message);
+      } else {
+        setIsInfo(error?.message);
+      }
     } finally {
       setIsLoading(false);
     }
   };
-
+  //
   const reset = () => {
     onClose();
     setIsCropMode(false);
     setFile(undefined);
-    setIsError(null);
+    setIsInfo(null);
     setNameError(null);
     setValue('1');
+    setIsInfo(null);
+    setIsLoading(false);
   };
 
   const {
@@ -142,7 +216,14 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
       'image/*': ['.jpeg', '.jpg', '.png'],
     },
   });
-
+  //post as nft modal handlers
+  const {
+    isOpen: isOpenNFT,
+    onOpen: onOpenNFT,
+    onClose: onCloseNFT,
+  } = useDisclosure();
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  //
   return (
     <Modal
       blockScrollOnMount={true}
@@ -154,6 +235,33 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
       }}
     >
       <ModalOverlay />
+      <AlertDialog
+        isCentered
+        isOpen={isOpenNFT}
+        leastDestructiveRef={cancelRef}
+        onClose={onCloseNFT}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent mx={4} bg="gray.900">
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Confirmation
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to mint Profile Picture as NFT ?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onCloseNFT}>
+                Cancel
+              </Button>
+              <Button colorScheme="green" onClick={nftHandler} ml={3}>
+                Yes
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
       <ModalContent
         bgColor="gray.900"
         borderWidth="1px"
@@ -229,6 +337,7 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
               <FormControl id="name" mb={4}>
                 <FormLabel>Name</FormLabel>
                 <Input
+                  focusBorderColor="green.200"
                   value={name}
                   onChange={(e) => {
                     if (isEmpty(e.target.value)) {
@@ -305,11 +414,8 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
                       </Text>
                     )}
                   </Box>
-                  {isError && (
-                    <Text mt={2} color="white">
-                      {isError}
-                    </Text>
-                  )}
+
+                  {isInfo && <Text mt={2}>{isInfo}</Text>}
                 </>
               </FormControl>
             </Box>
@@ -339,7 +445,7 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
                     <Radio value="1" mr={1}>
                       Regular Upload
                     </Radio>
-                    <Radio value="2">NFT Image</Radio>
+                    <Radio value="2">NFT Mint</Radio>
                   </Stack>
                 </RadioGroup>
                 <Button

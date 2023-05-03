@@ -7,7 +7,6 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { readContract } from '@wagmi/core';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
@@ -35,10 +34,6 @@ function Events() {
   useEffect(() => {
     setEvents(useContractReadData);
   }, [useContractReadData]);
-
-  useEffect(() => {
-    console.log(events);
-  }, [events]);
 
   return (
     <Box width="full" maxWidth="2xl" p={4}>

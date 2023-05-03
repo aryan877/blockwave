@@ -70,8 +70,11 @@ function Ticket({ event, index }: { event: any; index: number }) {
         console.log(result);
         setProfilePicture(result);
       })
-      .catch((error) => {
-        console.error('Error fetching profile picture:', error);
+      .catch((error: any) => {
+        console.error(
+          'Error fetching profile picture:',
+          error.response.data.message
+        );
       });
   }, [event.creator]);
   const [balance, setBalance] = useState<any>(0);

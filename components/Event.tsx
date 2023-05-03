@@ -32,7 +32,6 @@ import { FaClock } from 'react-icons/fa';
 import { useQuery } from 'react-query';
 import {
   useAccount,
-  useContractRead,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
@@ -61,6 +60,7 @@ function Event({ event }: { event: any }) {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [profilePicture, setProfilePicture] = useState(null);
+
   useEffect(() => {
     if (!event.creator) {
       return;
@@ -70,13 +70,9 @@ function Event({ event }: { event: any }) {
     client
       .fetch(query, { userId })
       .then((result) => {
-        console.log(userId);
-        console.log(result);
         setProfilePicture(result);
       })
-      .catch((error) => {
-        console.error('Error fetching profile picture:', error);
-      });
+      .catch((error: any) => {});
   }, [event.creator]);
 
   useEffect(() => {
@@ -263,7 +259,7 @@ function Event({ event }: { event: any }) {
             ) : (
               <></>
             )}
-            {useWaitForTransactionError && (
+            {(useWaitForTransactionError || isError) && (
               <Text color="green.400">
                 Error, could not complete transaction, try again.
               </Text>
@@ -294,7 +290,7 @@ function Event({ event }: { event: any }) {
         {isLoading ? (
           <Spinner m={4} size="md" />
         ) : error ? (
-          <Text>Could not fetch event metadata</Text>
+          <Text>Failed to fetch event metadata</Text>
         ) : (
           <>
             <Image
@@ -306,17 +302,6 @@ function Event({ event }: { event: any }) {
             />
 
             <VStack px="4" py="4" spacing={2} align="stretch">
-              {/* <Text
-                color="gray.400"
-                // fontWeight="semibold"
-                letterSpacing="wide"
-                fontSize="sm"
-              >
-                Event Name
-              </Text>
-              <Heading fontSize="lg" fontWeight="bold">
-                {metadata?.name}
-              </Heading> */}
               <HStack spacing="2">
                 <Text color="gray.400" fontSize="sm">
                   Event Name
@@ -326,17 +311,6 @@ function Event({ event }: { event: any }) {
                 </Text>
               </HStack>
 
-              {/* <Text
-                color="gray.400"
-                // fontWeight="semibold"
-                letterSpacing="wide"
-                fontSize="sm"
-              >
-                Event ID
-              </Text>
-              <Heading fontSize="lg" fontWeight="bold">
-                #{event[0].toString()}
-              </Heading> */}
               <HStack spacing="2">
                 <Text color="gray.400" fontSize="sm">
                   Event id
@@ -344,24 +318,14 @@ function Event({ event }: { event: any }) {
                 <Text fontWeight="bold"> #{event[0].toString()}</Text>
               </HStack>
               <Spacer />
-              <Text
-                color="gray.400"
-                // fontWeight="semibold"
-                letterSpacing="wide"
-                fontSize="sm"
-              >
+              <Text color="gray.400" letterSpacing="wide" fontSize="sm">
                 Event Description
               </Text>
               <Text fontSize="md" fontWeight="normal">
                 {metadata?.description}
               </Text>
               <Spacer />
-              <Text
-                color="gray.400"
-                // fontWeight="semibold"
-                letterSpacing="wide"
-                fontSize="sm"
-              >
+              <Text color="gray.400" letterSpacing="wide" fontSize="sm">
                 Creator
               </Text>
               <Link href={`/profile/${event.creator}`}>

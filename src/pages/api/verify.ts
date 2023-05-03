@@ -23,14 +23,13 @@ const createUser = async (address: string, res: NextApiResponse) => {
   // Check if the user exists
 
   if (userExists.length > 0) {
-    res.status(200).json({
+    return res.status(200).json({
       title: 'Wallet Verified',
       message: `Wallet address ${address.slice(0, 6)}....${address.slice(
         -6
       )} is logged in`,
       userId: address,
     });
-    return;
   }
 
   const count = await client.fetch(`count(*[_type == "users"])`);
@@ -45,7 +44,7 @@ const createUser = async (address: string, res: NextApiResponse) => {
   };
 
   const result = await client.createIfNotExists<NewUser>(userDoc);
-  res.status(201).json({
+  return res.status(201).json({
     title: 'Account Created',
     message: `Your account with wallet address ${address.slice(
       0,
@@ -78,7 +77,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         await createUser(fields.address, res);
         // res.status(200).json({ message: 'ok' });
       } catch (error) {
-        console.error(error);
         res.status(500).json({ message: 'Server error' });
       }
       break;

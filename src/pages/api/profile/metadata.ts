@@ -4,7 +4,8 @@ import fs from 'fs';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { join } from 'path';
-import { ironOptions } from '../../../utils';
+import client from '../../../../lib/sanityBackendClient';
+import { ironOptions } from '../../../../utils';
 const sphToken = process.env.SPHERON_TOKEN as string;
 const sphClient = new SpheronClient({ token: sphToken });
 let currentlyUploaded = 0;
@@ -34,22 +35,28 @@ const readForm = (
   });
 };
 
-const uploadEventMetadata = async (
+//method saves image to db after saving to ipgs and then generates nft metadata json on ipfs to return to client for NFT
+const uploadNFTProfileMetadata = async (
   req: NextApiRequest,
   res: NextApiResponse
 ) => {
   //verify wallet signature here, only if signature is valid then the user can post
   try {
     if (req.method !== 'POST') {
-      res.status(405).json({ message: 'Method not allowed' });
+      return res.status(405).json({ message: 'Method not allowed' });
     }
     if (!req.session.siwe?.address) {
       return res.status(422).json({ message: 'Invalid token' });
     }
     const { fields, files } = await readForm(req, true);
-    if (!fields.name || !fields.description || !files.image) {
-      res.status(406).json({
-        message: 'event image, name and description are required',
+    if (!fields.name) {
+      return res.status(406).json({
+        message: 'name cannot be blank',
+      });
+    }
+    if (!files.image) {
+      return res.status(406).json({
+        message: 'image is required for NFT',
       });
     }
     let postImage = '';
@@ -65,18 +72,24 @@ const uploadEventMetadata = async (
         });
       postImage = `${protocolLink}/${files.image.newFilename}`; // set postImage to the uploaded image link
     }
+
+    const response = await client
+      .patch(req.session.siwe.address)
+      .set({ profileImage: postImage })
+      .set({ name: fields.name })
+      .commit();
     //SAVE JSON
     const fileName = `file-${Math.floor(Math.random() * 100000)}.json`;
     const metaData = {
-      name: fields.name,
-      description: fields.description,
+      name: `blockwave profile @${req.session.siwe?.address}`,
+      description: 'no description',
       image: postImage,
     };
 
     const filePath = join('/tmp', fileName);
     fs.writeFileSync(filePath, JSON.stringify(metaData));
     let postMetaData = '';
-    if (fields.description && fields.name) {
+    if (metaData) {
       const { uploadId, bucketId, protocolLink, dynamicLinks } =
         await sphClient.upload(`${filePath}`, {
           protocol: ProtocolEnum.IPFS,
@@ -88,7 +101,7 @@ const uploadEventMetadata = async (
         });
       postMetaData = `${protocolLink}/${fileName}`; // set postImage to the uploaded image link
     }
-    res.status(201).json({ postMetaData });
+    return res.status(201).json({ postMetaData });
     // setTimeout(() => {
     //   res.json({ postMetaData: 'simulating ipfs upload' });
     // }, 1000); // sleep for 2 seconds
@@ -97,4 +110,4 @@ const uploadEventMetadata = async (
   }
 };
 
-export default withIronSessionApiRoute(uploadEventMetadata, ironOptions);
+export default withIronSessionApiRoute(uploadNFTProfileMetadata, ironOptions);

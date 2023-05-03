@@ -43,16 +43,20 @@ export interface PostProps {
     walletAddress: string;
     name: string;
     profileImage: string;
+    nftId: string;
   };
 }
+
 function Post({
   post,
   index,
   length,
+  setPosts,
 }: {
   post: PostProps;
   index: number;
   length: number;
+  setPosts: React.Dispatch<React.SetStateAction<PostProps[]>>;
 }) {
   const [isLiked, setIsLiked] = useState<boolean>(false);
 
@@ -75,7 +79,7 @@ function Post({
         title: res.data.message,
         autoClose: true,
       });
-    } catch (err) {
+    } catch (error) {
       setIsLiked(false);
       setLikeCount((prev) => prev - 1);
     }
@@ -87,7 +91,7 @@ function Post({
       const res = await axios.post('/api/post/unlike', {
         id: post._id,
       });
-    } catch (err) {
+    } catch (error) {
       setIsLiked(true);
       setLikeCount((prev) => prev + 1);
     }
@@ -116,23 +120,23 @@ function Post({
       const res = await axios.post('/api/post/delete', {
         id: post._id,
       });
+      setPosts((prevState) => prevState.filter((p) => p._id !== post._id));
       addNotification({
         status: 'success',
         title: res.data.message,
-        description: 'Refresh to see changes',
         autoClose: true,
       });
-    } catch (err) {
+    } catch (error: any) {
       onClose();
       addNotification({
         status: 'error',
-        title: (err as Error).message,
+        title: error.response.data.message,
         autoClose: true,
       });
     }
   };
 
-  //delete post handlers
+  //delete post modal handlers
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef<HTMLButtonElement>(null);
   //
@@ -194,7 +198,7 @@ function Post({
                 onClose={onClose}
               >
                 <AlertDialogOverlay>
-                  <AlertDialogContent mx={4}>
+                  <AlertDialogContent mx={4} bg="gray.900">
                     <AlertDialogHeader fontSize="lg" fontWeight="bold">
                       Delete Post
                     </AlertDialogHeader>
@@ -207,7 +211,11 @@ function Post({
                       <Button ref={cancelRef} onClick={onClose}>
                         Cancel
                       </Button>
-                      <Button colorScheme="red" onClick={deleteHandler} ml={3}>
+                      <Button
+                        colorScheme="green"
+                        onClick={deleteHandler}
+                        ml={3}
+                      >
                         Delete
                       </Button>
                     </AlertDialogFooter>
@@ -277,11 +285,23 @@ function Post({
   );
 }
 
-function Posts({ posts }: { posts: PostProps[] }) {
+function Posts({
+  posts,
+  setPosts,
+}: {
+  posts: PostProps[];
+  setPosts: React.Dispatch<React.SetStateAction<PostProps[]>>;
+}) {
   return (
     <Flex mt={2} width="full" align="stretch" flexDirection="column">
       {posts.map((post, index) => (
-        <Post key={post._id} post={post} index={index} length={posts.length} />
+        <Post
+          setPosts={setPosts}
+          key={post._id}
+          post={post}
+          index={index}
+          length={posts.length}
+        />
       ))}
     </Flex>
   );
