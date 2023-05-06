@@ -1,5 +1,6 @@
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { uuid } from 'uuidv4';
 import client from '../../../../lib/sanityBackendClient';
 import { ironOptions } from '../../../../utils';
 
@@ -25,6 +26,7 @@ const addComment = async (req: NextApiRequest, res: NextApiResponse) => {
         _type: 'reference',
         _ref: user._id,
       },
+      _key: uuid(),
       content,
       createdAt: new Date().toISOString(),
     };
@@ -32,7 +34,7 @@ const addComment = async (req: NextApiRequest, res: NextApiResponse) => {
       .patch(postId)
       .setIfMissing({ comments: [] })
       .prepend('comments', [comment])
-      .commit({ returnDocuments: false, autoGenerateArrayKeys: true });
+      .commit({ returnDocuments: false });
 
     const commentWithPopulatedCommenter = {
       ...comment,

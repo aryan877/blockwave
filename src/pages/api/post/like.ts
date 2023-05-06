@@ -1,5 +1,6 @@
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { uuid } from 'uuidv4';
 import client from '../../../../lib/sanityBackendClient';
 import { ironOptions } from '../../../../utils';
 const likePost = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -22,14 +23,11 @@ const likePost = async (req: NextApiRequest, res: NextApiResponse) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    const userRef = { _type: 'reference', _ref: user._id };
+    const userRef = { _type: 'reference', _ref: user._id, _key: uuid() };
     const likes = post.likes || [];
     if (!likes.some((like: any) => like._ref === userRef._ref)) {
       likes.push(userRef);
-      await client
-        .patch(id)
-        .set({ likes })
-        .commit({ returnDocuments: false, autoGenerateArrayKeys: true });
+      await client.patch(id).set({ likes }).commit({ returnDocuments: false });
     } else {
       return res.status(404).json({ message: 'Post already liked' });
     }

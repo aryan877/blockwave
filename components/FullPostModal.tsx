@@ -130,6 +130,8 @@ function FullPostModal({
         content: comment,
       });
       const newComment = response.data;
+      console.log(comments);
+      console.log(newComment);
       setComments((prev: any) => {
         if (Array.isArray(prev)) {
           return [newComment, ...prev];
