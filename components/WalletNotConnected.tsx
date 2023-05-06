@@ -20,10 +20,10 @@ function WalletNotConnected() {
           mx="auto"
           mb={4}
         />
-        <Text fontSize="lg" fontWeight="bold" mb={2}>
+        <Text fontSize="xl" fontWeight="bold" mb={2}>
           Connect your wallet to continue
         </Text>
-        <Text fontSize="md">
+        <Text fontSize="lg">
           Don't have a wallet yet?{' '}
           <a
             href="https://metamask.io/download.html"

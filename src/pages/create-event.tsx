@@ -218,7 +218,7 @@ function CreateEvent() {
   };
 
   return (
-    <Flex direction="column">
+    <Flex direction="column" mb={16}>
       <Button
         mb={4}
         colorScheme="green"

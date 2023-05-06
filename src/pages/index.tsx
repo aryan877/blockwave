@@ -62,7 +62,7 @@ const Home = () => {
   };
 
   return (
-    <Box width="full" maxWidth="2xl">
+    <Box width="full" mb={16} maxWidth="2xl">
       <PostBox setPosts={setPosts} />
       <>
         <Posts setPosts={setPosts} posts={posts} />

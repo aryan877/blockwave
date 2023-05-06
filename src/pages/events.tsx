@@ -36,9 +36,9 @@ function Events() {
   }, [useContractReadData]);
 
   return (
-    <Box width="full" maxWidth="2xl" p={4}>
+    <Box width="full" mb={16} maxWidth="2xl" p={4}>
       <Button
-          colorScheme="green"
+        colorScheme="green"
         // bg="gray.700"
         mb={4}
         onClick={() => router.back()}
