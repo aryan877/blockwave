@@ -4,24 +4,24 @@ import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { polygonMumbai } from 'wagmi/chains';
-import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { mantle } from '../../chain';
+// import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 import Layout from '../../components/Layout';
 import { NotificationProvider } from '../../context/NotificationContext';
 import theme from '../../theme';
-const { provider, webSocketProvider } = configureChains(
-  [polygonMumbai],
+const { provider } = configureChains(
+  [mantle, polygonMumbai],
   [publicProvider()]
 );
 // pages/_app.js
 import { Inter } from 'next/font/google';
+
 // If loading a variable font, you don't need to specify the font weight
 const inter = Inter({ subsets: ['latin'] });
-
 const client = createClient({
   autoConnect: false,
   provider,
-  webSocketProvider,
 });
 
 const queryClient = new QueryClient();

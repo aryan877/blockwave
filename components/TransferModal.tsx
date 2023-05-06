@@ -27,6 +27,7 @@ import { isEmpty } from 'lodash';
 import React, { useState } from 'react';
 import {
   useAccount,
+  useNetwork,
   usePrepareSendTransaction,
   useSendTransaction,
   useWaitForTransaction,
@@ -42,6 +43,7 @@ function TransferModal({ isOpen, onClose, user }: any) {
       setAmount(value);
     }
   };
+  const { chain } = useNetwork();
 
   const { config, error, isError } = usePrepareSendTransaction({
     request: {
@@ -103,7 +105,7 @@ function TransferModal({ isOpen, onClose, user }: any) {
             w="full"
             fontSize="lg"
             _placeholder={{ color: 'gray.400' }}
-            placeholder="Enter amount to send in eth"
+            placeholder={`Enter amount to send in ${chain?.nativeCurrency.symbol}`}
             style={{ minWidth: 0 }}
             focusBorderColor="purple.200"
           />

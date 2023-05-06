@@ -10,6 +10,7 @@ import {
   MenuList,
   Text,
 } from '@chakra-ui/react';
+import { disconnect } from '@wagmi/core';
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -19,7 +20,6 @@ import { SiweMessage } from 'siwe';
 import {
   useAccount,
   useConnect,
-  useDisconnect,
   useEnsName,
   useNetwork,
   useSignMessage,
@@ -36,8 +36,7 @@ const Layout = ({ children }: PropsWithChildren) => {
   const { connect } = useConnect({
     connector: new InjectedConnector(),
   });
-  const { disconnect } = useDisconnect();
-  const { chain, chains } = useNetwork();
+  const { chain } = useNetwork();
   const { addNotification } = useNotification();
 
   const logout = async () => {
@@ -68,7 +67,6 @@ const Layout = ({ children }: PropsWithChildren) => {
     }
   }, [address, state.loggedInAddress]);
 
-  // const [boy, setBoy] = useState('');
   const { signMessageAsync } = useSignMessage();
 
   const signIn = async () => {
@@ -177,6 +175,11 @@ const Layout = ({ children }: PropsWithChildren) => {
           <Image src="/logo.png" alt="Logo" width={100} mx="auto" />
         </Link>
         <Flex alignItems="center">
+          {chain && (
+            <Text fontSize="xs" mr={4}>
+              {chain.name}
+            </Text>
+          )}
           {status === 'connected' ? (
             //if connected check if logged in with ethereum or not
             state.loggedInAddress ? (
@@ -214,9 +217,9 @@ const Layout = ({ children }: PropsWithChildren) => {
                 >
                   {address?.slice(0, 6)}....{address?.slice(-6)}
                 </MenuButton>
-                <MenuList bg="black.900" color="white">
+                <MenuList color="white">
                   <MenuItem
-                    _hover={{ bg: 'black.600', cursor: 'pointer' }}
+                    _hover={{ cursor: 'pointer' }}
                     onClick={() => disconnect()}
                   >
                     Disconnect Wallet

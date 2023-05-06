@@ -34,10 +34,11 @@ import { useQuery } from 'react-query';
 import {
   useAccount,
   useContractWrite,
+  useNetwork,
   usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { TicketFactory } from '../abi/address';
+import { chainAddresses } from '../abi/address';
 import TicketABI from '../abi/TicketFactory.json';
 import client from '../lib/sanityFrontendClient';
 import CustomAvatar from './CustomAvatar';
@@ -59,6 +60,7 @@ function Event({ event }: { event: any }) {
     const response = await axios.get(`${event[7]}`);
     return response.data;
   });
+  const { chain } = useNetwork();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -176,7 +178,7 @@ function Event({ event }: { event: any }) {
   //Modal web3 functions
   const { config, error: usePrepareContractWriteError } =
     usePrepareContractWrite({
-      address: TicketFactory,
+      address: chainAddresses[chain?.id || 5001].TicketFactory,
       abi: TicketABI.output.abi,
       functionName: 'buyTicket',
       args: [ethers.BigNumber.from(event[0]), numTickets],
@@ -275,8 +277,8 @@ function Event({ event }: { event: any }) {
             {numTickets && (
               <Text mb={4} color="gray.400">
                 You will pay{' '}
-                {ethers.utils.formatEther(event[4].mul(numTickets))} ETH for{' '}
-                {numTickets.toString()}{' '}
+                {ethers.utils.formatEther(event[4].mul(numTickets))}{' '}
+                {chain?.nativeCurrency.symbol} for {numTickets.toString()}{' '}
                 {parseInt(numTickets) === 1 ? 'ticket' : 'tickets'}
               </Text>
             )}
@@ -436,7 +438,8 @@ function Event({ event }: { event: any }) {
                         Ticket price
                       </Text>
                       <Text fontWeight="bold">
-                        {ethers.utils.formatEther(event[4])} ETH
+                        {ethers.utils.formatEther(event[4])}{' '}
+                        {chain?.nativeCurrency.symbol}
                       </Text>
                     </HStack>
                     {address !== event.creator && (

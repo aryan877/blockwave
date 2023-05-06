@@ -33,22 +33,17 @@ import {
   useAccount,
   useContractRead,
   useContractWrite,
+  useNetwork,
   usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { TicketFactory } from '../abi/address';
+import { chainAddresses } from '../abi/address';
 import TicketABI from '../abi/TicketFactory.json';
 import client from '../lib/sanityFrontendClient';
 import CustomAvatar from './CustomAvatar';
-enum SaleStatus {
-  Active = 'active',
-  AboutToStart = 'about_to_start',
-  Ended = 'ended',
-}
+
 function Ticket({ event, index }: { event: any; index: number }) {
-  const [countdown, setCountdown] = useState('');
   const { address } = useAccount();
-  const [status, setStatus] = useState<SaleStatus>(SaleStatus.AboutToStart);
   const {
     isLoading,
     error,
@@ -57,6 +52,7 @@ function Ticket({ event, index }: { event: any; index: number }) {
     const response = await axios.get(`${event[7]}`);
     return response.data;
   });
+  const { chain } = useNetwork();
   const [user, setUser] = useState(null);
   useEffect(() => {
     if (!event.creator) {
@@ -81,7 +77,7 @@ function Ticket({ event, index }: { event: any; index: number }) {
   const [balance, setBalance] = useState<any>(0);
 
   const { data: useContractReadEvents } = useContractRead({
-    address: TicketFactory,
+    address: chainAddresses[chain?.id || 5001].TicketFactory,
     abi: TicketABI.output.abi,
     functionName: 'balanceOf',
     watch: true,
@@ -179,7 +175,7 @@ function Ticket({ event, index }: { event: any; index: number }) {
                 {ethers.utils
                   .formatEther(event[4].mul(parseInt(balance.toString())))
                   .toString()}{' '}
-                ETH in total.
+                {chain?.nativeCurrency.symbol} in total.
               </Text>
             )}
           </VStack>

@@ -2,11 +2,14 @@ import {
   Avatar,
   Box,
   Button,
+  Center,
   Flex,
+  Link,
   Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
+import { isEmpty } from 'lodash';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
@@ -14,17 +17,19 @@ import {
   useAccount,
   useContractRead,
   useContractWrite,
+  useNetwork,
   usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { TicketFactory } from '../../abi/address';
+import { chainAddresses } from '../../abi/address';
 import TicketABI from '../../abi/TicketFactory.json';
 import Event from '../../components/Event';
 
 function Events() {
   const [events, setEvents] = useState<any>([]);
+  const { chain } = useNetwork();
   const { data: useContractReadData } = useContractRead({
-    address: TicketFactory,
+    address: chainAddresses[chain?.id || 5001].TicketFactory,
     abi: TicketABI.output.abi,
     functionName: 'getUnsoldTickets',
     watch: true,
@@ -65,6 +70,27 @@ function Events() {
         </Text>
       </Box>
       <VStack spacing={4} alignItems="stretch">
+        {events && isEmpty(events) && (
+          <>
+            <Text
+              fontSize="lg"
+              fontWeight="medium"
+              color="gray.500"
+              textAlign="center"
+              mt="8"
+              mb="4"
+            >
+              It looks like there are no events yet.
+            </Text>
+            <Center>
+              <Link href="/create-event">
+                <Button variant="solid" colorScheme="green">
+                  Create a new event
+                </Button>
+              </Link>
+            </Center>
+          </>
+        )}
         {events?.map((event: any) => {
           return <Event key={event[0]} event={event} />;
         })}

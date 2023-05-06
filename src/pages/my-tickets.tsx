@@ -18,18 +18,20 @@ import {
   useAccount,
   useContractRead,
   useContractWrite,
+  useNetwork,
   usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { TicketFactory } from '../../abi/address';
+import { chainAddresses } from '../../abi/address';
 import TicketABI from '../../abi/TicketFactory.json';
 import Event from '../../components/Event';
 import Ticket from '../../components/Ticket';
 function MyTickets() {
   const { address } = useAccount();
   const [events, setEvents] = useState<any>([]);
+  const { chain } = useNetwork();
   const { data: useContractReadEvents } = useContractRead({
-    address: TicketFactory,
+    address: chainAddresses[chain?.id || 5001].TicketFactory,
     abi: TicketABI.output.abi,
     functionName: 'getMyTickets',
     watch: true,

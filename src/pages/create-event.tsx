@@ -35,8 +35,8 @@ import { FiArrowLeft } from 'react-icons/fi';
 import { IoImagesOutline } from 'react-icons/io5';
 import { MdClose } from 'react-icons/md';
 import { start } from 'repl';
-
-import { TicketFactory } from '../../abi/address';
+import { useNetwork } from 'wagmi';
+import { chainAddresses } from '../../abi/address';
 import TicketABI from '../../abi/TicketFactory.json';
 import { useNotification } from '../../context/NotificationContext';
 
@@ -52,6 +52,7 @@ function CreateEvent() {
       roundedMinutes
     );
   };
+  const { chain } = useNetwork();
   const formRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { addNotification, removeNotification } = useNotification();
@@ -120,7 +121,7 @@ function CreateEvent() {
       });
       //web3 stuff from here onwards to create event in blockwave contract
       const config = await prepareWriteContract({
-        address: TicketFactory,
+        address: chainAddresses[chain?.id || 5001].TicketFactory,
         abi: TicketABI.output.abi,
         functionName: 'createTicket',
         args: [
@@ -345,7 +346,6 @@ function CreateEvent() {
                     mt={4}
                     isInvalid={form.errors.price && form.touched.price}
                   >
-                    {/* <FormLabel>Ticket Price (in ETH)</FormLabel> */}
                     <Input
                       {...field}
                       _placeholder={{ color: 'gray.500' }}
@@ -354,8 +354,7 @@ function CreateEvent() {
                       size="lg"
                       mb="4"
                       focusBorderColor="green.200"
-                      // variant="flushed"
-                      placeholder="Enter price per ticket (ETH)"
+                      placeholder={`Enter price per ticket in ${chain?.nativeCurrency.symbol}`}
                     />
                     {form.errors.price && form.touched.price && (
                       <Text color="red.500">{form.errors.price}</Text>

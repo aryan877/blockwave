@@ -55,9 +55,9 @@ import { useDropzone } from 'react-dropzone';
 import Cropper from 'react-easy-crop';
 import { FiArrowLeft } from 'react-icons/fi';
 import { MdCameraAlt } from 'react-icons/md';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 import { setLocale } from 'yup';
-import { ProfileImage } from '../abi/address';
+import { chainAddresses } from '../abi/address';
 import ProfileABI from '../abi/ProfileImage.json';
 import getCroppedImg from './cropImage.js';
 function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
@@ -69,6 +69,7 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
   const [imageUrl, setImageUrl] = useState<string | undefined>(
     user.profileImage
   );
+  const { chain } = useNetwork();
   const characterLimit = 50;
   const [isCropMode, setIsCropMode] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -167,7 +168,7 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
       setIsInfo('uploading metadata to ipfs...');
       const res = await axios.post('/api/profile/metadata', formData);
       const config = await prepareWriteContract({
-        address: ProfileImage,
+        address: chainAddresses[chain?.id || 5001].ProfileImage,
         abi: ProfileABI.output.abi,
         functionName: 'mint',
         args: [address, res.data.postMetaData],

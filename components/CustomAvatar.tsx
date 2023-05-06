@@ -1,9 +1,9 @@
 import { Avatar, AvatarBadge, Badge, VStack } from '@chakra-ui/react';
 import { css } from '@emotion/react';
-import { isEmpty } from 'lodash';
+import { chain, isEmpty } from 'lodash';
 import { useEffect, useState } from 'react';
-import { useAccount, useContractRead } from 'wagmi';
-import { ProfileImage } from '../abi/address';
+import { useAccount, useContractRead, useNetwork } from 'wagmi';
+import { chainAddresses } from '../abi/address';
 import ProfileABI from '../abi/ProfileImage.json';
 
 interface CustomAvatarProps {
@@ -31,9 +31,10 @@ const CustomAvatar: React.FC<CustomAvatarProps> = ({
   borderWidthRegularImage = 0,
   borderWidthNFTImage = 2,
 }) => {
+  const { chain } = useNetwork();
   //verify ownership of NFT image for profile picture
   const { data: useContractReadOwner } = useContractRead({
-    address: ProfileImage,
+    address: chainAddresses[chain?.id || 5001].ProfileImage,
     abi: ProfileABI.output.abi,
     functionName: 'ownerOf',
     args: [user.nftId],

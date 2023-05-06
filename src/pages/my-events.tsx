@@ -9,7 +9,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { readContract } from '@wagmi/core';
-import { isEmpty } from 'lodash';
+import { chain, isEmpty } from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
@@ -18,17 +18,19 @@ import {
   useAccount,
   useContractRead,
   useContractWrite,
+  useNetwork,
   usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { TicketFactory } from '../../abi/address';
+import { chainAddresses } from '../../abi/address';
 import TicketABI from '../../abi/TicketFactory.json';
 import Event from '../../components/Event';
 function MyEvents() {
   const { address } = useAccount();
+  const { chain } = useNetwork();
   const [events, setEvents] = useState<any>([]);
   const { data: useContractReadEvents } = useContractRead({
-    address: TicketFactory,
+    address: chainAddresses[chain?.id || 5001].TicketFactory,
     abi: TicketABI.output.abi,
     functionName: 'getMyEvents',
     watch: true,

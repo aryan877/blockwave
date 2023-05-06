@@ -24,8 +24,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
-import { useAccount, useContractRead } from 'wagmi';
-import { TicketFactory } from '../../../abi/address';
+import { useAccount, useContractRead, useNetwork } from 'wagmi';
+import { chainAddresses } from '../../../abi/address';
 import TicketABI from '../../../abi/TicketFactory.json';
 import CustomAvatar from '../../../components/CustomAvatar';
 import EditProfile from '../../../components/EditProfileModal';
@@ -67,13 +67,15 @@ function Profile() {
     setTabIndex(index);
   };
 
+  const { chain } = useNetwork();
+
   const slug = router.query.slug;
   const { addNotification } = useNotification();
   const { address } = useAccount();
 
   const [events, setEvents] = useState<any>([]);
   const { data: useContractReadEvents, isFetching } = useContractRead({
-    address: TicketFactory,
+    address: chainAddresses[chain?.id || 5001].TicketFactory,
     abi: TicketABI.output.abi,
     functionName: 'getMyEvents',
     overrides: {
@@ -223,7 +225,7 @@ function Profile() {
                 color="green.200"
                 onClick={transferOnOpen}
               >
-                Send ETH
+                Send {chain?.nativeCurrency.symbol}
               </Button>
             )}
           </>
