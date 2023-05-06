@@ -10,14 +10,22 @@ const unlikePost = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(422).json({ message: 'Invalid token' });
     }
     if (req.method !== 'POST') {
-      return res.status(405).json({ message: 'Method not allowed' });
+      res.status(405).json({ message: 'Method not allowed' });
+      return;
     }
     const post = await client.getDocument(id);
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
+    const user = await client.fetch(
+      `*[_type == "users" && _id == "${req.session.siwe.address}"][0]`
+    );
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     const likes = post.likes || [];
-    const index = likes.indexOf(req.session.siwe.address);
+    const userRef = user._id;
+    const index = likes.findIndex((ref: any) => ref._ref === userRef);
     if (index === -1) {
       return res.status(404).json({
         message: 'Post already unliked',

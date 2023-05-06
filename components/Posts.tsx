@@ -30,6 +30,9 @@ import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
 import { FaTrash } from 'react-icons/fa';
 import { useAccount } from 'wagmi';
 import { useNotification } from '../context/NotificationContext';
+import CustomAvatar from './CustomAvatar';
+import FullPostModal from './FullPostModal';
+
 dayjs.locale('en');
 dayjs.extend(relativeTime);
 
@@ -38,7 +41,8 @@ export interface PostProps {
   _id: string;
   _createdAt: string;
   postImage: string;
-  likes: string[];
+  likes: any[];
+  comments: any[];
   author: {
     walletAddress: string;
     name: string;
@@ -61,12 +65,13 @@ function Post({
   const [isLiked, setIsLiked] = useState<boolean>(false);
 
   useEffect(() => {
-    if (post.likes.includes(address as string)) {
-      setIsLiked(true);
-    }
-  }, []);
+    const liked = post.likes.some(
+      (like: { _ref: string }) => like._ref === address
+    );
+    setIsLiked(liked);
+  }, [post.likes]);
 
-  const [likeCount, setLikeCount] = useState<number>(post.likes.length);
+  const [likeCount, setLikeCount] = useState<number>(post?.likes?.length || 0);
   const like = async () => {
     try {
       setLikeCount((prev) => prev + 1);
@@ -74,12 +79,13 @@ function Post({
       const res = await axios.post('/api/post/like', {
         id: post._id,
       });
-      addNotification({
-        status: 'success',
-        title: res.data.message,
-        autoClose: true,
-      });
-    } catch (error) {
+      // addNotification({
+      //   status: 'success',
+      //   title: res.data.message,
+      //   autoClose: true,
+      // });
+    } catch (error: any) {
+      console.log(error?.response?.data?.message);
       setIsLiked(false);
       setLikeCount((prev) => prev - 1);
     }
@@ -140,148 +146,184 @@ function Post({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef<HTMLButtonElement>(null);
   //
+  //full post view modal handlers
+  const {
+    onOpen: onOpenPostModal,
+    isOpen: isOpenPostModal,
+    onClose: onClosePostModal,
+  } = useDisclosure();
 
   return (
-    <Flex
-      bg="gray.900"
-      borderLeftWidth="1px"
-      borderRightWidth="1px"
-      borderBottomWidth="1px"
-      borderTopWidth={0 === index ? '1px' : 'none'}
-      borderBottomRightRadius={length - 1 === index ? 'md' : 'none'}
-      borderBottomLeftRadius={length - 1 === index ? 'md' : 'none'}
-      borderTopRightRadius={0 === index ? 'md' : 'none'}
-      borderTopLeftRadius={0 === index ? 'md' : 'none'}
-      p={4}
-      align="start"
-    >
-      <Link href={`/profile/${post.author?.walletAddress}`}>
-        <Avatar size="md" src={post.author?.profileImage} mr={4} />
-      </Link>
-      <VStack align="start" w="100%">
-        <Flex w="100%" justifyContent="space-between">
-          <HStack w="100%">
-            <Link href={`/profile/${post.author?.walletAddress}`}>
-              <Text fontWeight="bold" _hover={{ textDecoration: 'underline' }}>
-                {post.author?.name}
-              </Text>
-            </Link>
-            <Text color="gray.500" ml="1">
-              {createdAtFormatted}
-            </Text>
-
-            <Box display={{ base: 'none', md: 'block' }}>
-              <Text color="gray.500">
-                &middot; @{post.author?.walletAddress?.slice(0, 6)}....
-                {post.author?.walletAddress?.slice(-6)}
-              </Text>
-            </Box>
-          </HStack>
-          {post.author?.walletAddress === address && (
-            <>
-              <Tooltip label="Delete post" placement="top">
-                <Button
-                  onClick={onOpen}
-                  alignSelf="flex-end"
-                  variant="ghost"
-                  colorScheme="red"
-                  size="sm"
-                  aria-label="Delete post"
+    <>
+      {post && isOpenPostModal && (
+        <FullPostModal
+          like={like}
+          unlike={unlike}
+          isLiked={isLiked}
+          likeCount={likeCount}
+          post={post}
+          isOpenPostModal={isOpenPostModal}
+          onClosePostModal={onClosePostModal}
+        />
+      )}
+      <Flex
+        bg="gray.900"
+        borderLeftWidth="1px"
+        borderRightWidth="1px"
+        borderBottomWidth="1px"
+        borderTopWidth={0 === index ? '1px' : 'none'}
+        borderBottomRightRadius={length - 1 === index ? 'md' : 'none'}
+        borderBottomLeftRadius={length - 1 === index ? 'md' : 'none'}
+        borderTopRightRadius={0 === index ? 'md' : 'none'}
+        borderTopLeftRadius={0 === index ? 'md' : 'none'}
+        p={4}
+        align="start"
+      >
+        <Link href={`/profile/${post.author?.walletAddress}`}>
+          {post.author && <CustomAvatar mr={4} user={post.author} />}
+        </Link>
+        <VStack align="start" w="100%">
+          <Flex w="100%" justifyContent="space-between">
+            <HStack w="100%">
+              <Link href={`/profile/${post.author?.walletAddress}`}>
+                <Text
+                  fontWeight="bold"
+                  _hover={{ textDecoration: 'underline' }}
                 >
-                  <Icon as={FaTrash} boxSize={4} />
-                </Button>
-              </Tooltip>
+                  {post.author?.name}
+                </Text>
+              </Link>
 
-              <AlertDialog
-                isOpen={isOpen}
-                leastDestructiveRef={cancelRef}
-                onClose={onClose}
-              >
-                <AlertDialogOverlay>
-                  <AlertDialogContent mx={4} bg="gray.900">
-                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                      Delete Post
-                    </AlertDialogHeader>
+              <Box display={{ base: 'none', md: 'block' }}>
+                <Link href={`/profile/${post.author?.walletAddress}`}>
+                  <Text color="gray.500">
+                    @{post.author?.walletAddress?.slice(0, 6)}....
+                    {post.author?.walletAddress?.slice(-6)} &middot;
+                  </Text>
+                </Link>
+              </Box>
+              <Text color="gray.500" ml="1">
+                {createdAtFormatted}
+              </Text>
+            </HStack>
+            {post.author?.walletAddress === address && (
+              <>
+                <Tooltip label="Delete post" placement="top">
+                  <Button
+                    onClick={onOpen}
+                    alignSelf="flex-end"
+                    variant="ghost"
+                    colorScheme="red"
+                    size="sm"
+                    aria-label="Delete post"
+                  >
+                    <Icon as={FaTrash} boxSize={4} />
+                  </Button>
+                </Tooltip>
 
-                    <AlertDialogBody>
-                      Are you sure? You can't undo this action afterwards.
-                    </AlertDialogBody>
+                <AlertDialog
+                  isOpen={isOpen}
+                  leastDestructiveRef={cancelRef}
+                  onClose={onClose}
+                  isCentered
+                >
+                  <AlertDialogOverlay>
+                    <AlertDialogContent mx={4} bg="gray.900">
+                      <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                        Delete Post
+                      </AlertDialogHeader>
 
-                    <AlertDialogFooter>
-                      <Button ref={cancelRef} onClick={onClose}>
-                        Cancel
-                      </Button>
-                      <Button
-                        colorScheme="green"
-                        onClick={deleteHandler}
-                        ml={3}
-                      >
-                        Delete
-                      </Button>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialogOverlay>
-              </AlertDialog>
-            </>
-          )}
-        </Flex>
-        <Box display={{ base: 'block', md: 'none' }} mt="2">
-          <Text color="gray.500">
-            @{post.author?.walletAddress?.slice(0, 6)}....
-            {post.author?.walletAddress?.slice(-6)}
-          </Text>
-        </Box>
+                      <AlertDialogBody>
+                        Are you sure? You can't undo this action afterwards.
+                      </AlertDialogBody>
 
-        <Text fontWeight="medium">{post.text}</Text>
-
-        {post.postImage && (
-          <Box w="100%" borderWidth="1px" borderRadius="md" overflow="hidden">
-            <Image
-              src={post.postImage}
-              alt="Post image"
-              w="full"
-              h="full"
-              objectFit="cover"
-              placeholder="blur"
-            />
-          </Box>
-        )}
-        <Flex justify="space-between" w="100%" alignItems="center">
-          <HStack>
-            {/* like button */}
-            <IconButton
-              icon={
-                isLiked ? (
-                  <AiFillHeart size={25} />
-                ) : (
-                  <AiOutlineHeart size={25} />
-                )
-              }
-              colorScheme={'red'}
-              color={isLiked ? 'red.400' : 'white'}
-              variant="unstyled"
-              aria-label="Like"
-              _hover={{ color: 'red.400' }}
-              onClick={() => {
-                if (isLiked) {
-                  unlike();
-                } else {
-                  like();
-                }
-              }}
-            />
-            {/* like button */}
-            <Text mr={-2} color="white">
-              {' '}
-              {likeCount}
+                      <AlertDialogFooter>
+                        <Button ref={cancelRef} onClick={onClose}>
+                          Cancel
+                        </Button>
+                        <Button
+                          colorScheme="green"
+                          onClick={deleteHandler}
+                          ml={3}
+                        >
+                          Delete
+                        </Button>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialogOverlay>
+                </AlertDialog>
+              </>
+            )}
+          </Flex>
+          <Box display={{ base: 'block', md: 'none' }} mt="2">
+            <Text color="gray.500">
+              @{post.author?.walletAddress?.slice(0, 6)}....
+              {post.author?.walletAddress?.slice(-6)}
             </Text>
-          </HStack>
-          <Text color="gray.500" cursor="pointer">
-            View Comments
-          </Text>
-        </Flex>
-      </VStack>
-    </Flex>
+          </Box>
+
+          <Text fontWeight="medium">{post.text}</Text>
+
+          {post.postImage && (
+            <Box w="100%" borderWidth="1px" borderRadius="md" overflow="hidden">
+              <Image
+                src={post.postImage}
+                alt="Post image"
+                w="full"
+                h="auto"
+                cursor="pointer"
+                objectFit="cover"
+                placeholder="blur"
+                onClick={() => {
+                  onOpenPostModal();
+                }}
+              />
+            </Box>
+          )}
+          <Flex justify="space-between" w="100%" alignItems="center">
+            <HStack>
+              {/* like button */}
+              <IconButton
+                icon={
+                  isLiked ? (
+                    <AiFillHeart size={25} />
+                  ) : (
+                    <AiOutlineHeart size={25} />
+                  )
+                }
+                colorScheme={'red'}
+                color={isLiked ? 'red.400' : 'white'}
+                variant="unstyled"
+                aria-label="Like"
+                _hover={{ color: 'red.400' }}
+                onClick={() => {
+                  if (isLiked) {
+                    unlike();
+                  } else {
+                    like();
+                  }
+                }}
+              />
+              {/* like button */}
+              <Text mr={-2} color="white">
+                {' '}
+                {likeCount}
+              </Text>
+            </HStack>
+            <Text
+              onClick={onOpenPostModal}
+              color="gray.500"
+              cursor="pointer"
+              p={2}
+              borderRadius="md"
+              _hover={{ bg: 'gray.700' }}
+            >
+              View {post.comments?.length} Comments
+            </Text>
+          </Flex>
+        </VStack>
+      </Flex>
+    </>
   );
 }
 

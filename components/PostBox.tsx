@@ -75,6 +75,7 @@ const PostBox = ({ setPosts }: setPostProps) => {
         setIsLoading(false);
       });
   };
+
   const handleRemoveImage = () => {
     setImageUrl(undefined);
     setFile(undefined);

@@ -39,6 +39,7 @@ import {
 import { TicketFactory } from '../abi/address';
 import TicketABI from '../abi/TicketFactory.json';
 import client from '../lib/sanityFrontendClient';
+import CustomAvatar from './CustomAvatar';
 enum SaleStatus {
   Active = 'active',
   AboutToStart = 'about_to_start',
@@ -56,26 +57,26 @@ function Ticket({ event, index }: { event: any; index: number }) {
     const response = await axios.get(`${event[7]}`);
     return response.data;
   });
-  const [profilePicture, setProfilePicture] = useState(null);
+  const [user, setUser] = useState(null);
   useEffect(() => {
     if (!event.creator) {
       return;
     }
-    const query = `*[_type == "users" && _id == $userId][0].profileImage`;
+    const query = `*[_type == "users" && _id == $userId][0] {
+      _id,
+      name,
+      profileImage,
+      nftId,
+    }`;
     const userId = event.creator;
     client
       .fetch(query, { userId })
       .then((result) => {
         console.log(userId);
         console.log(result);
-        setProfilePicture(result);
+        setUser(result);
       })
-      .catch((error: any) => {
-        console.error(
-          'Error fetching profile picture:',
-          error.response.data.message
-        );
-      });
+      .catch((error: any) => {});
   }, [event.creator]);
   const [balance, setBalance] = useState<any>(0);
 
@@ -121,30 +122,30 @@ function Ticket({ event, index }: { event: any; index: number }) {
           </Text>
         ) : (
           <VStack px="4" py="4" spacing={2} align="stretch">
-            <Text color="gray.500" letterSpacing="wide" fontSize="sm">
+            <Text color="gray.600" letterSpacing="wide" fontSize="sm">
               Event Name
             </Text>
-            <Heading fontSize="lg" fontWeight="bold" color="gray.700">
+            <Heading fontSize="lg" fontWeight="semibold" color="gray.700">
               {metadata?.name}
             </Heading>
-            <Text color="gray.500" letterSpacing="wide" fontSize="sm">
+            <Text color="gray.600" letterSpacing="wide" fontSize="sm">
               Event ID
             </Text>
-            <Heading fontSize="lg" fontWeight="bold" color="gray.700">
+            <Heading fontSize="lg" fontWeight="semibold" color="gray.700">
               #{event[0].toString()}
             </Heading>
-            <Text color="gray.500" letterSpacing="wide" fontSize="sm">
+            <Text color="gray.600" letterSpacing="wide" fontSize="sm">
               Event Description
             </Text>
-            <Text fontSize="md" fontWeight="normal" color="gray.700">
+            <Text fontSize="md" fontWeight="semibold" color="gray.700">
               {metadata?.description}
             </Text>
-            <Text color="gray.500" letterSpacing="wide" fontSize="sm">
+            <Text color="gray.600" letterSpacing="wide" fontSize="sm">
               Creator
             </Text>
             <Link href={`/profile/${event.creator}`}>
               <HStack>
-                {profilePicture && <Avatar size="sm" src={profilePicture} />}
+                {user && <CustomAvatar user={user} />}
                 {address !== event.creator ? (
                   <Text
                     fontWeight="semibold"
@@ -167,11 +168,11 @@ function Ticket({ event, index }: { event: any; index: number }) {
                 )}
               </HStack>
             </Link>
-            <Text color="gray.500" letterSpacing="wide" fontSize="sm">
+            <Text color="gray.600" letterSpacing="wide" fontSize="sm">
               Quantity
             </Text>
             {balance && (
-              <Text fontSize="md" fontWeight="bold" color="gray.700">
+              <Text fontSize="md" fontWeight="semibold" color="gray.700">
                 You own {balance.toString()}{' '}
                 {parseInt(balance.toString()) === 1 ? 'ticket' : 'tickets'}. You
                 paid{' '}

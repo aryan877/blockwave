@@ -25,7 +25,7 @@ const createUser = async (address: string, res: NextApiResponse) => {
   if (userExists.length > 0) {
     return res.status(200).json({
       title: 'Wallet Verified',
-      message: `Wallet address ${address.slice(0, 6)}....${address.slice(
+      message: `Wallet address ${address?.slice(0, 6)}....${address?.slice(
         -6
       )} is logged in`,
       userId: address,
@@ -46,10 +46,10 @@ const createUser = async (address: string, res: NextApiResponse) => {
   const result = await client.createIfNotExists<NewUser>(userDoc);
   return res.status(201).json({
     title: 'Account Created',
-    message: `Your account with wallet address ${address.slice(
+    message: `Your account with wallet address ${address?.slice(
       0,
       6
-    )}....${address.slice(-6)} has been created`,
+    )}....${address?.slice(-6)} has been created`,
     userId: result._id,
   });
 };

@@ -2,10 +2,8 @@ import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '../../../../lib/sanityBackendClient';
 import { ironOptions } from '../../../../utils';
-
 const likePost = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    // Access the body data
     const { id } = req.body;
     if (!req.session.siwe?.address) {
       return res.status(422).json({ message: 'Invalid token' });
@@ -18,18 +16,24 @@ const likePost = async (req: NextApiRequest, res: NextApiResponse) => {
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
-    const likes = post.likes || [];
-    if (!likes.includes(req.session.siwe.address)) {
-      likes.push(req.session.siwe.address);
-      await client.patch(id).set({ likes }).commit();
-    } else {
-      return res.status(404).json({
-        message: 'Post already liked',
-      });
+    const user = await client.fetch(
+      `*[_type == "users" && _id == "${req.session.siwe.address}"][0]`
+    );
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-    return res.status(200).json({
-      message: 'Post liked',
-    });
+    const userRef = { _type: 'reference', _ref: user._id };
+    const likes = post.likes || [];
+    if (!likes.some((like: any) => like._ref === userRef._ref)) {
+      likes.push(userRef);
+      await client
+        .patch(id)
+        .set({ likes })
+        .commit({ returnDocuments: false, autoGenerateArrayKeys: true });
+    } else {
+      return res.status(404).json({ message: 'Post already liked' });
+    }
+    return res.status(200).json({ message: 'Post liked' });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal server error' });

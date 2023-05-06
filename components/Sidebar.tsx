@@ -1,24 +1,24 @@
 import { Box, Icon, Text, useBreakpointValue } from '@chakra-ui/react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import {
+  AiFillFire,
+  AiFillHome,
   AiOutlineBell,
   AiOutlineFire,
   AiOutlineHome,
   AiOutlinePlus,
-  AiOutlineProfile,
   AiOutlineUser,
 } from 'react-icons/ai';
 import { BiCalendarEvent, BiParty } from 'react-icons/bi';
-import { BsBag } from 'react-icons/bs';
-import { FaTwitter } from 'react-icons/fa';
-import { IoClipboardOutline, IoTicketOutline } from 'react-icons/io5';
-import { MdMailOutline } from 'react-icons/md';
-import { RiFileList3Line } from 'react-icons/ri';
+import { BsBag, BsBagFill, BsFillBagFill } from 'react-icons/bs';
+import { GoPlus } from 'react-icons/go';
+import { RiUser3Fill, RiUser3Line } from 'react-icons/ri';
+import { TbConfetti } from 'react-icons/tb';
 import { useAccount } from 'wagmi';
 
-import { TiTicket } from 'react-icons/ti';
-
 function Sidebar() {
+  const router = useRouter();
   const displaySidebar = useBreakpointValue({ base: 'none', md: 'block' });
   const { address } = useAccount();
   return (
@@ -32,33 +32,79 @@ function Sidebar() {
     >
       <Box pos="fixed">
         <Link href="/">
-          <SidebarLink icon={AiOutlineHome}>Home</SidebarLink>
+          <SidebarLink
+            icon={AiOutlineHome}
+            activeIcon={AiFillHome}
+            isActive={router.pathname === '/'}
+          >
+            Home
+          </SidebarLink>
         </Link>
         <Link href={`/profile/${address}`}>
-          <SidebarLink icon={AiOutlineUser}>Profile</SidebarLink>
+          <SidebarLink
+            activeIcon={RiUser3Fill}
+            icon={RiUser3Line}
+            isActive={router.pathname.startsWith('/profile/')}
+          >
+            Profile
+          </SidebarLink>
         </Link>
         <Link href="/events">
-          <SidebarLink icon={AiOutlineFire}>Browse Events</SidebarLink>
+          <SidebarLink
+            icon={AiOutlineFire}
+            activeIcon={AiFillFire}
+            isActive={router.pathname === '/events'}
+          >
+            Browse Events
+          </SidebarLink>
         </Link>
         <Link href="/create-event">
-          <SidebarLink icon={AiOutlinePlus}>Mint Event</SidebarLink>
+          <SidebarLink
+            icon={AiOutlinePlus}
+            activeIcon={GoPlus}
+            isActive={router.pathname === '/create-event'}
+          >
+            Mint Event
+          </SidebarLink>
         </Link>
         <Link href="/my-tickets">
-          <SidebarLink icon={BsBag}>My Tickets</SidebarLink>
+          <SidebarLink
+            icon={BsBag}
+            activeIcon={BsBagFill}
+            isActive={router.pathname === '/my-tickets'}
+          >
+            My Tickets
+          </SidebarLink>
         </Link>
         <Link href="/my-events">
-          <SidebarLink icon={BiParty}>My Events</SidebarLink>
+          <SidebarLink
+            icon={BiParty}
+            activeIcon={BiParty}
+            isActive={router.pathname === '/my-events'}
+          >
+            My Events
+          </SidebarLink>
         </Link>
       </Box>
     </Box>
   );
 }
 
-function SidebarLink({ icon, children }: { icon: any; children: any }) {
+function SidebarLink({
+  icon,
+  activeIcon,
+  isActive,
+  children,
+}: {
+  icon: any;
+  activeIcon?: any;
+  isActive?: boolean;
+  children: any;
+}) {
   return (
-    <Box display="flex" py="4" borderRadius="9999px" cursor="pointer">
-      <Icon as={icon} w="8" h="8" mr="4" />
-      <Text fontWeight="bold" fontSize="lg">
+    <Box display="flex" p={4} borderRadius="9999px" cursor="pointer">
+      <Icon as={isActive ? activeIcon : icon} w="8" h="8" mr={4} />
+      <Text ml={2} fontWeight={isActive ? 'extrabold' : ''} fontSize="lg">
         {children}
       </Text>
     </Box>

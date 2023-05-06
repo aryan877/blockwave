@@ -1,35 +1,17 @@
 import { extendTheme } from '@chakra-ui/react';
+import tinycolor from 'tinycolor2';
 
 const theme = extendTheme({
 
   colors: {
-    // black: {
-    //   '900': '#1c1e21',
-    //   '800': '#252627',
-    //   '700': '#2d2f30',
-    // },
     gray: {
-      // '900': '#242526',
-      '800': 'black',
-      // '700': '#4d4e4f',
+      '900': tinycolor('black').lighten(10).toString(),
+      '800': tinycolor('black').lighten(4).toString(),
+      '700': tinycolor('black').lighten(20).toString(),
+      '600': tinycolor('black').lighten(30).toString(),
+      '500': tinycolor('black').lighten(60).toString(),
     },
   },
-  // components: {
-  //   Button: {
-  //     variants: {
-  //       custom: {
-  //         backgroundColor: '#e94c89',
-  //         color: 'white',
-  //         _hover: {
-  //           backgroundColor: '#ed70a1',
-  //         },
-  //         _active: {
-  //           backgroundColor: '#ed70a1',
-  //         },
-  //       },
-  //     },
-  //   },
-  // },
   initialColorMode: 'dark', // 'dark' | 'light'
   useSystemColorMode: false,
 });

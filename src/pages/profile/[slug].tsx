@@ -29,10 +29,11 @@ import { useAccount, useContractRead } from 'wagmi';
 import { ProfileImage, TicketFactory } from '../../../abi/address';
 import ProfileABI from '../../../abi/Profileimage.json';
 import TicketABI from '../../../abi/TicketFactory.json';
+import CustomAvatar from '../../../components/CustomAvatar';
 import EditProfile from '../../../components/EditProfileModal';
 import Event from '../../../components/Event';
 import Posts, { PostProps } from '../../../components/Posts';
-import TipAccount from '../../../components/TipAccount';
+import TransferModal from '../../../components/TransferModal';
 import { useNotification } from '../../../context/NotificationContext';
 import client from '../../../lib/sanityFrontendClient';
 
@@ -61,7 +62,7 @@ function Profile() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [isLoadingPosts, setIsLoadingPosts] = useState(true);
   const [update, setUpdate] = useState<Boolean>(false);
-  const [isNftHolder, SetIsNftHolder] = useState(false);
+  // const [isNftHolder, SetIsNftHolder] = useState(false);
 
   // const [tabIndex, setTabIndex] = useState(0);
   const slug = router.query.slug;
@@ -106,7 +107,7 @@ function Profile() {
       }
     };
     getPosts();
-  }, [slug]);
+  }, [slug, update]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -129,28 +130,6 @@ function Profile() {
     getUser();
   }, [slug, update]);
 
-  const { data: useContractReadOwner } = useContractRead({
-    address: ProfileImage,
-    abi: ProfileABI.output.abi,
-    functionName: 'ownerOf',
-    args: [user?.nftId],
-  });
-
-  useEffect(() => {
-    console.log(useContractReadOwner, user?._id, '2');
-    if (
-      user &&
-      useContractReadOwner === user?._id &&
-      !isEmpty(user?._id) &&
-      !isEmpty(useContractReadOwner) &&
-      user?.nftId >= 0
-    ) {
-      SetIsNftHolder(true);
-    } else {
-      SetIsNftHolder(false);
-    }
-  }, [useContractReadOwner, user]);
-
   const {
     isOpen: editProfileIsOpen,
     onOpen: editProfileOnOpen,
@@ -158,14 +137,14 @@ function Profile() {
   } = useDisclosure();
 
   const {
-    isOpen: tipIsOpen,
-    onOpen: tipOnOpen,
-    onClose: tipOnClose,
+    isOpen: transferIsOpen,
+    onOpen: transferOnOpen,
+    onClose: transferOnClose,
   } = useDisclosure();
 
   return (
     <>
-      {user && (
+      {user && editProfileIsOpen && (
         <EditProfile
           isOpen={editProfileIsOpen}
           onClose={editProfileOnClose}
@@ -173,26 +152,36 @@ function Profile() {
           setUpdate={setUpdate}
         />
       )}
-      <TipAccount isOpen={tipIsOpen} onClose={tipOnClose} />
+      {user && transferIsOpen && (
+        <TransferModal
+          isOpen={transferIsOpen}
+          onClose={transferOnClose}
+          user={user}
+        />
+      )}
       <Box width="full" maxWidth="2xl" p={4}>
-        <Button mb={4} onClick={() => router.back()}>
+        <Button
+          colorScheme="green"
+          // bg="gray.700"
+          mb={4}
+          w="fit-content"
+          onClick={() => router.back()}
+        >
           <FiArrowLeft />
+          <Text ml={2}>Back</Text>
         </Button>
 
         {!isLoadingUser ? (
           <>
             <VStack alignItems="flex-start" my="4">
-              <Avatar
-                size="2xl"
-                name={user?.name}
-                src={user?.profileImage}
-                borderWidth={4}
-                borderStyle="solid"
-                borderColor={isNftHolder ? 'green.200' : 'white'}
-                borderRadius={isNftHolder ? 0 : 'full'}
-                css={isNftHolder && hexagonStyle}
-              />
-              {isNftHolder && <Badge colorScheme="green">NFT Profile</Badge>}
+              {user && (
+                <CustomAvatar
+                  size="2xl"
+                  borderWidthRegularImage={2}
+                  user={user}
+                  showBadge={true}
+                />
+              )}
             </VStack>
             <Text fontSize="xl" fontWeight="bold">
               {user?.name}
@@ -209,8 +198,8 @@ function Profile() {
                   mt={4}
                   borderRadius="lg"
                   borderWidth="1px"
-                  bg="#000"
-                  _hover={{ bg: '#000' }}
+                  bg="gray.800"
+                  _hover={{ bg: 'gray.800' }}
                   borderColor="green.200"
                   color="green.200"
                   onClick={editProfileOnOpen}
@@ -221,9 +210,13 @@ function Profile() {
             ) : (
               <Button
                 mt={4}
-                borderRadius="md"
-                colorScheme="green"
-                onClick={tipOnOpen}
+                borderRadius="lg"
+                borderWidth="1px"
+                bg="gray.800"
+                _hover={{ bg: 'gray.800' }}
+                borderColor="green.200"
+                color="green.200"
+                onClick={transferOnOpen}
               >
                 Send ETH
               </Button>

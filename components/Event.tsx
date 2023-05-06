@@ -25,6 +25,7 @@ import {
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { ethers } from 'ethers';
+import { isEmpty } from 'lodash';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { BsDash, BsPlus } from 'react-icons/bs';
@@ -39,6 +40,7 @@ import {
 import { TicketFactory } from '../abi/address';
 import TicketABI from '../abi/TicketFactory.json';
 import client from '../lib/sanityFrontendClient';
+import CustomAvatar from './CustomAvatar';
 enum SaleStatus {
   Active = 'active',
   AboutToStart = 'about_to_start',
@@ -48,7 +50,7 @@ function Event({ event }: { event: any }) {
   const [countdown, setCountdown] = useState('');
   const { address } = useAccount();
   const [status, setStatus] = useState<SaleStatus>(SaleStatus.AboutToStart);
-
+  const [user, setUser] = useState(null);
   const {
     isLoading,
     error,
@@ -59,18 +61,23 @@ function Event({ event }: { event: any }) {
   });
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [profilePicture, setProfilePicture] = useState(null);
 
   useEffect(() => {
     if (!event.creator) {
       return;
     }
-    const query = `*[_type == "users" && _id == $userId][0].profileImage`;
+    const query = `*[_type == "users" && _id == $userId][0] {
+      _id,
+      name,
+      profileImage,
+      nftId,
+    }`;
     const userId = event.creator;
+
     client
       .fetch(query, { userId })
       .then((result) => {
-        setProfilePicture(result);
+        setUser(result);
       })
       .catch((error: any) => {});
   }, [event.creator]);
@@ -134,36 +141,42 @@ function Event({ event }: { event: any }) {
     }
   }, [event.startTime, event.endTime]);
   //Modal State
-  const [numTickets, setNumTickets] = useState(1);
+  const [numTickets, setNumTickets] = useState<string>('1');
   const [isPurchased, setIsPurchased] = useState(false);
+
   const handleNumTicketsChange = (e: any) => {
-    const value = parseInt(e.target.value);
-    if (value >= 1) {
+    const value = e.target.value.trim();
+    if (/^\d*$/.test(value)) {
+      // only match whole numbers
+      if (parseInt(value) < 1) {
+        return;
+      }
       setNumTickets(value);
     }
   };
 
   const handleIncrement = () => {
-    setNumTickets(numTickets + 1);
+    setNumTickets((parseInt(numTickets) + 1).toString());
   };
 
   const handleDecrement = () => {
-    if (numTickets > 1) {
-      setNumTickets(numTickets - 1);
+    if (parseInt(numTickets) > 1) {
+      setNumTickets((parseInt(numTickets) - 1).toString());
     }
   };
 
   //Modal State
   //Modal web3 functions
-  const { config } = usePrepareContractWrite({
-    address: TicketFactory,
-    abi: TicketABI.output.abi,
-    functionName: 'buyTicket',
-    args: [ethers.BigNumber.from(event[0]), numTickets],
-    overrides: {
-      value: event[4].mul(numTickets),
-    },
-  });
+  const { config, error: usePrepareContractWriteError } =
+    usePrepareContractWrite({
+      address: TicketFactory,
+      abi: TicketABI.output.abi,
+      functionName: 'buyTicket',
+      args: [ethers.BigNumber.from(event[0]), numTickets],
+      overrides: {
+        value: event[4].mul(numTickets || 0),
+      },
+    });
 
   const {
     data: useContractWriteData,
@@ -192,6 +205,7 @@ function Event({ event }: { event: any }) {
       write?.();
     }
   };
+
   //Modal web3 functions
   return (
     <>
@@ -201,16 +215,23 @@ function Event({ event }: { event: any }) {
         onClose={() => {
           onClose();
           setIsPurchased(false);
+          setNumTickets('1');
         }}
         isCentered
       >
         <ModalOverlay />
-        <ModalContent bgColor="gray.900" borderWidth="1px">
+        <ModalContent
+          bgColor="gray.900"
+          borderWidth="1px"
+          maxH="60vh"
+          overflow="auto"
+          mx={4}
+        >
           <ModalHeader>Buy Tickets</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text fontWeight="bold" mb={4}>
-              Choose the number of tickets you want to buy
+            <Text fontWeight="bold" color="green.200" mb={4}>
+              Choose the number of tickets you wish to buy
             </Text>
             <HStack spacing="2" mb={4}>
               <Text fontSize="md" color="gray.400">
@@ -230,10 +251,9 @@ function Event({ event }: { event: any }) {
               </Button>
 
               <Input
-                type="number"
+                type="text"
                 value={numTickets}
                 onChange={handleNumTicketsChange}
-                min="1"
                 width="4rem"
                 textAlign="center"
                 borderRadius="md"
@@ -245,23 +265,36 @@ function Event({ event }: { event: any }) {
                 <BsPlus />
               </Button>
             </Flex>
-            <Text mb={4} color="gray.400">
-              You will pay {ethers.utils.formatEther(event[4].mul(numTickets))}{' '}
-              ETH
-            </Text>
+            {numTickets && (
+              <Text mb={4} color="gray.400">
+                You will pay{' '}
+                {ethers.utils.formatEther(event[4].mul(numTickets))} ETH for{' '}
+                {numTickets.toString()}{' '}
+                {parseInt(numTickets) === 1 ? 'ticket' : 'tickets'}
+              </Text>
+            )}
             {isFetching ? (
               <Text>Transaction pending....</Text>
             ) : isPurchased && isSuccess ? (
-              <Text color="green.400">
+              <Text color="green.200">
                 Tickets purchased successfully. Check your tickets in My Tickets
                 tab.
               </Text>
             ) : (
               <></>
             )}
-            {(useWaitForTransactionError || isError) && (
-              <Text color="green.400">
+            {useWaitForTransactionError && (
+              <Text color="red.500">
                 Error, could not complete transaction, try again.
+              </Text>
+            )}
+
+            {!isEmpty(usePrepareContractWriteError) && (
+              <Text color="red.500">
+                {usePrepareContractWriteError?.message?.slice(0, 300)}
+                {usePrepareContractWriteError?.message?.length > 300
+                  ? '....'
+                  : ''}
               </Text>
             )}
           </ModalBody>
@@ -271,6 +304,7 @@ function Event({ event }: { event: any }) {
               colorScheme="purple"
               onClick={handleSubmit}
               isLoading={isFetching}
+              isDisabled={!isEmpty(usePrepareContractWriteError) || !numTickets}
             >
               {isFetching ? <Spinner size="sm" /> : 'Buy'}
             </Button>
@@ -278,7 +312,6 @@ function Event({ event }: { event: any }) {
         </ModalContent>
       </Modal>
       <Box
-        // w={{ base: '100%', md: '80%' }}
         maxWidth="2xl"
         borderWidth="1px"
         borderRadius="lg"
@@ -330,7 +363,7 @@ function Event({ event }: { event: any }) {
               </Text>
               <Link href={`/profile/${event.creator}`}>
                 <HStack>
-                  {profilePicture && <Avatar size="sm" src={profilePicture} />}
+                  {user && <CustomAvatar user={user} />}
                   {address !== event.creator ? (
                     <Text
                       fontWeight="semibold"

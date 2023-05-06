@@ -17,6 +17,9 @@ import {
   IconButton,
   Image,
   Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -66,7 +69,7 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
   const [imageUrl, setImageUrl] = useState<string | undefined>(
     user.profileImage
   );
-  // const [isChangedImage, setIsChangedImage] = useState(false);
+  const characterLimit = 50;
   const [isCropMode, setIsCropMode] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [croppedArea, setCroppedArea] = useState<any>(null);
@@ -122,8 +125,9 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
         } else {
           setIsInfo('uploading metadata to ipfs...');
         }
-        const res = await axios.post('/api/profile/update', formData);
-        reset();
+        await axios.post('/api/profile/update', formData);
+        // reset();
+        onClose();
         setUpdate((prev: boolean) => !prev);
       }
       //if NFT upload then open modal and let nftHandler take over from there
@@ -179,7 +183,8 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
       }
       await axios.post('/api/profile/save_nft_id', { nftId });
       setIsInfo('Successfully updated');
-      reset();
+      // reset();
+      onClose();
       setUpdate((prev: boolean) => !prev);
     } catch (error: any) {
       if (error?.response?.data?.message) {
@@ -191,18 +196,6 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
       setIsLoading(false);
     }
   };
-  //
-  const reset = () => {
-    onClose();
-    setIsCropMode(false);
-    setFile(undefined);
-    setIsInfo(null);
-    setNameError(null);
-    setValue('1');
-    setIsInfo(null);
-    setIsLoading(false);
-  };
-
   const {
     getRootProps,
     getInputProps,
@@ -229,9 +222,7 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
       blockScrollOnMount={true}
       isOpen={isOpen}
       onClose={() => {
-        setImageUrl(user.profileImage);
-        setName(user.name);
-        reset();
+        onClose();
       }}
     >
       <ModalOverlay />
@@ -255,7 +246,7 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
               <Button ref={cancelRef} onClick={onCloseNFT}>
                 Cancel
               </Button>
-              <Button colorScheme="green" onClick={nftHandler} ml={3}>
+              <Button colorScheme="purple" onClick={nftHandler} ml={3}>
                 Yes
               </Button>
             </AlertDialogFooter>
@@ -282,6 +273,7 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
               >
                 <FiArrowLeft />
               </Button>
+
               <Box
                 w="full"
                 mt={2}
@@ -336,19 +328,38 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
             <Box>
               <FormControl id="name" mb={4}>
                 <FormLabel>Name</FormLabel>
-                <Input
-                  focusBorderColor="green.200"
-                  value={name}
-                  onChange={(e) => {
-                    if (isEmpty(e.target.value)) {
-                      setName('');
-                      setNameError('name cannot be blank');
-                      return;
-                    }
-                    setNameError(null);
-                    setName(e.target.value);
-                  }}
-                />
+                <InputGroup>
+                  <InputRightElement
+                    pointerEvents="none"
+                    fontSize="sm"
+                    color="gray.500"
+                  >
+                    {name.length}/{characterLimit}
+                  </InputRightElement>
+                  <Input
+                    type="text"
+                    placeholder="Add a comment..."
+                    focusBorderColor="purple.200"
+                    value={name}
+                    // maxLength={characterLimit}
+                    onChange={(e) => {
+                      if (isEmpty(e.target.value)) {
+                        setName('');
+                        setNameError('Name cannot be blank');
+                        return;
+                      }
+                      if (e.target.value.length > characterLimit) {
+                        setNameError(
+                          `Name cannot be longer than ${characterLimit} characters`
+                        );
+                        return;
+                      }
+                      setNameError(null);
+                      setName(e.target.value);
+                    }}
+                  />
+                  <InputRightElement pointerEvents="none" children={<></>} />
+                </InputGroup>
                 {nameError && (
                   <Text mt={2} color="red.500">
                     {nameError}
@@ -370,7 +381,7 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
                     borderStyle={isDragActive ? 'dashed' : 'solid'}
                     borderColor={
                       isDragAccept
-                        ? 'green.400'
+                        ? 'purple.200'
                         : isDragReject
                         ? 'red.500'
                         : 'gray.700'

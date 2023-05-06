@@ -125,7 +125,7 @@ function CreateEvent() {
         functionName: 'createTicket',
         args: [
           values.supply,
-          ethers.utils.parseEther(values.price?.toString()),
+          ethers.utils.parseUnits(values.price?.toString()),
           ethers.BigNumber.from(
             Math.floor(startDate.getTime() / 1000).toString()
           ),
@@ -156,10 +156,10 @@ function CreateEvent() {
       addNotification({
         status: 'success',
         title: 'Event Creation Successful',
-        description: `Your event has been successfully created. Transaction hash: ${hash.slice(
+        description: `Your event has been successfully created. Transaction hash: ${hash?.slice(
           0,
           6
-        )}....${hash.slice(
+        )}....${hash?.slice(
           -6
         )}. You can check your event in the My Events tab.`,
       });
@@ -219,8 +219,15 @@ function CreateEvent() {
 
   return (
     <Flex direction="column">
-      <Button mb={4} onClick={() => router.back()} w="fit-content">
+      <Button
+        mb={4}
+        colorScheme="green"
+        // bg="gray.700"
+        onClick={() => router.back()}
+        w="fit-content"
+      >
         <FiArrowLeft />
+        <Text ml={2}>Back</Text>
       </Button>
       <Box
         width="full"
@@ -235,9 +242,10 @@ function CreateEvent() {
           Create Your Own Event
         </Text>
         <Box display="flex" alignItems="center" mb={4}>
-          <Text color="gray.500" mt={2} mb={4}>
+          <Text color="green.200" mt={2} mb={4}>
             Please fill in the following fields to create your event as an
-            ERC-1155 NFT Token. Mint your NFT using the form below.
+            ERC-1155 NFT Token. Mint your NFT using the form below with an easy
+            one step process.
           </Text>
         </Box>
         <Formik

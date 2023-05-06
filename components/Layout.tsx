@@ -29,7 +29,6 @@ import { useNotification } from '../context/NotificationContext';
 import Loader from './Loader';
 import LoginPrompt from './LoginPrompt';
 import Sidebar from './Sidebar';
-import WalletError from './WalletError';
 import WalletNotConnected from './WalletNotConnected';
 
 const Layout = ({ children }: PropsWithChildren) => {
@@ -59,6 +58,16 @@ const Layout = ({ children }: PropsWithChildren) => {
     loading?: boolean;
   }>({});
   const router = useRouter();
+
+  useEffect(() => {
+    if (!address?.includes('0x') || !state.loggedInAddress?.includes('0x')) {
+      return;
+    }
+    if (state.loggedInAddress !== address) {
+      logout();
+    }
+  }, [address, state.loggedInAddress]);
+
   // const [boy, setBoy] = useState('');
   const { signMessageAsync } = useSignMessage();
 
@@ -182,8 +191,8 @@ const Layout = ({ children }: PropsWithChildren) => {
                   _hover={{ cursor: 'pointer' }}
                   rightIcon={<AiOutlineCaretDown />}
                 >
-                  {state.loggedInAddress.slice(0, 6)}....
-                  {state.loggedInAddress.slice(-6)}
+                  {address?.slice(0, 6)}....
+                  {address?.slice(-6)}
                 </MenuButton>
                 <MenuList color="white">
                   <MenuItem _hover={{ cursor: 'pointer' }} onClick={logout}>
@@ -203,7 +212,7 @@ const Layout = ({ children }: PropsWithChildren) => {
                   _hover={{ cursor: 'pointer' }}
                   rightIcon={<AiOutlineCaretDown />}
                 >
-                  {address.slice(0, 6)}....{address.slice(-6)}
+                  {address?.slice(0, 6)}....{address?.slice(-6)}
                 </MenuButton>
                 <MenuList bg="black.900" color="white">
                   <MenuItem

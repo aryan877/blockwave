@@ -37,8 +37,15 @@ function Events() {
 
   return (
     <Box width="full" maxWidth="2xl" p={4}>
-      <Button mb={4} onClick={() => router.back()} w="fit-content">
+      <Button
+          colorScheme="green"
+        // bg="gray.700"
+        mb={4}
+        onClick={() => router.back()}
+        w="fit-content"
+      >
         <FiArrowLeft />
+        <Text ml={2}>Back</Text>
       </Button>
       <Text fontSize="xl" mb={4} fontWeight="bold">
         All Events

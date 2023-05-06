@@ -38,7 +38,9 @@
     "react-icons": "^4.8.0",
     "react-query": "^3.39.3",
     "siwe": "^1.1.6",
+    "tinycolor2": "^1.6.0",
     "typescript": "5.0.4",
+    "uuidv4": "^6.2.13",
     "wagmi": "^0.12.12",
     "yup": "^1.1.1"
   },
