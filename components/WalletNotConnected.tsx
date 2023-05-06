@@ -13,7 +13,7 @@ function WalletNotConnected() {
         textAlign="center"
       >
         <Image
-          src="/logo.png"
+          src="/metamask.png"
           alt="Logo"
           width={200}
           height={200}

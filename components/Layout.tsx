@@ -174,7 +174,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         bg="rgba(0, 0, 0, 0.8)"
       >
         <Link href="/">
-          <Image src="/textlogo.png" alt="Logo" width={100} mx="auto" />
+          <Image src="/logo.png" alt="Logo" width={100} mx="auto" />
         </Link>
         <Flex alignItems="center">
           {status === 'connected' ? (
@@ -238,7 +238,7 @@ const Layout = ({ children }: PropsWithChildren) => {
           )}
         </Flex>
       </Flex>
-      <Box mb={16}>{app}</Box>
+      <Box>{app}</Box>
     </>
   );
 };
