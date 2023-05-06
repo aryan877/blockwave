@@ -156,10 +156,17 @@ function Event({ event }: { event: any }) {
   };
 
   const handleIncrement = () => {
+    if (numTickets === '') {
+      setNumTickets('1');
+      return;
+    }
     setNumTickets((parseInt(numTickets) + 1).toString());
   };
 
   const handleDecrement = () => {
+    if (numTickets === '') {
+      return;
+    }
     if (parseInt(numTickets) > 1) {
       setNumTickets((parseInt(numTickets) - 1).toString());
     }
@@ -291,10 +298,17 @@ function Event({ event }: { event: any }) {
 
             {!isEmpty(usePrepareContractWriteError) && (
               <Text color="red.500">
-                {usePrepareContractWriteError?.message?.slice(0, 300)}
-                {usePrepareContractWriteError?.message?.length > 300
-                  ? '....'
-                  : ''}
+                {usePrepareContractWriteError?.message ===
+                'Internal JSON-RPC error.'
+                  ? 'Error, check if you have enough balance'
+                  : `An error occurred preparing the transaction: ${usePrepareContractWriteError?.message?.slice(
+                      0,
+                      300
+                    )} ${
+                      usePrepareContractWriteError?.message?.length > 300
+                        ? '....'
+                        : ''
+                    }`}
               </Text>
             )}
           </ModalBody>
