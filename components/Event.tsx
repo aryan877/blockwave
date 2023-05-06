@@ -346,7 +346,7 @@ function Event({ event }: { event: any }) {
               src={metadata?.image}
               alt="Event cover image"
               w="full"
-              h="56"
+              h="80"
               objectFit="cover"
             />
 

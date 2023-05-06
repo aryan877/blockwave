@@ -4,14 +4,14 @@ import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { polygonMumbai } from 'wagmi/chains';
-import { mantle } from '../../chain';
+import { mantleWadsley, shardeumSphinx } from '../../chain';
 // import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 import Layout from '../../components/Layout';
 import { NotificationProvider } from '../../context/NotificationContext';
 import theme from '../../theme';
 const { provider } = configureChains(
-  [mantle, polygonMumbai],
+  [mantleWadsley, shardeumSphinx, polygonMumbai],
   [publicProvider()]
 );
 // pages/_app.js
