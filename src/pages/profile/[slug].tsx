@@ -24,10 +24,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
-import { useQuery } from 'react-query';
 import { useAccount, useContractRead } from 'wagmi';
-import { ProfileImage, TicketFactory } from '../../../abi/address';
-import ProfileABI from '../../../abi/ProfileImage.json';
+import { TicketFactory } from '../../../abi/address';
 import TicketABI from '../../../abi/TicketFactory.json';
 import CustomAvatar from '../../../components/CustomAvatar';
 import EditProfile from '../../../components/EditProfileModal';
@@ -64,7 +62,11 @@ function Profile() {
   const [update, setUpdate] = useState<Boolean>(false);
   // const [isNftHolder, SetIsNftHolder] = useState(false);
 
-  // const [tabIndex, setTabIndex] = useState(0);
+  const [tabIndex, setTabIndex] = useState(0);
+  const handleTabsChange = (index: number) => {
+    setTabIndex(index);
+  };
+
   const slug = router.query.slug;
   const { addNotification } = useNotification();
   const { address } = useAccount();
@@ -84,6 +86,9 @@ function Profile() {
   }, [useContractReadEvents]);
 
   useEffect(() => {
+    if (tabIndex !== 0) {
+      return;
+    }
     const getPosts = async () => {
       try {
         setIsLoadingPosts(true);
@@ -107,7 +112,7 @@ function Profile() {
       }
     };
     getPosts();
-  }, [slug, update]);
+  }, [slug, update, tabIndex]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -227,7 +232,13 @@ function Profile() {
             <Spinner size="xl" color="gray.500" />
           </Box>
         )}
-        <Tabs isFitted variant="enclosed" colorScheme="green">
+        <Tabs
+          index={tabIndex}
+          onChange={handleTabsChange}
+          isFitted
+          variant="enclosed"
+          colorScheme="green"
+        >
           <TabList my={8}>
             <Tab>Posts</Tab>
             <Tab>Events</Tab>
