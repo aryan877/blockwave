@@ -55,7 +55,7 @@ function Sidebar() {
             activeIcon={AiFillFire}
             isActive={router.pathname === '/events'}
           >
-            Browse Events
+            All Events
           </SidebarLink>
         </Link>
         <Link href="/create-event">
@@ -102,7 +102,18 @@ function SidebarLink({
   children: any;
 }) {
   return (
-    <Box display="flex" p={4} borderRadius="9999px" cursor="pointer">
+    <Box
+      display="flex"
+      _hover={{
+        bg: 'gray.900',
+        transition: 'background-color 0.1s ease-out',
+      }}
+      py={4}
+      px={4}
+      my={2}
+      borderRadius="9999px"
+      cursor="pointer"
+    >
       <Icon as={isActive ? activeIcon : icon} w="8" h="8" mr={4} />
       <Text ml={2} fontWeight={isActive ? 'extrabold' : ''} fontSize="lg">
         {children}
