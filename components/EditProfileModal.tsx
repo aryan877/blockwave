@@ -58,7 +58,7 @@ import { MdCameraAlt } from 'react-icons/md';
 import { useAccount } from 'wagmi';
 import { setLocale } from 'yup';
 import { ProfileImage } from '../abi/address';
-import ProfileABI from '../abi/Profileimage.json';
+import ProfileABI from '../abi/ProfileImage.json';
 import getCroppedImg from './cropImage.js';
 function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
   const router = useRouter();

@@ -4,7 +4,7 @@ import { isEmpty } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useAccount, useContractRead } from 'wagmi';
 import { ProfileImage } from '../abi/address';
-import ProfileABI from '../abi/Profileimage.json';
+import ProfileABI from '../abi/ProfileImage.json';
 
 interface CustomAvatarProps {
   size?: string;

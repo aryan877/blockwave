@@ -27,7 +27,7 @@ import { FiArrowLeft } from 'react-icons/fi';
 import { useQuery } from 'react-query';
 import { useAccount, useContractRead } from 'wagmi';
 import { ProfileImage, TicketFactory } from '../../../abi/address';
-import ProfileABI from '../../../abi/Profileimage.json';
+import ProfileABI from '../../../abi/ProfileImage.json';
 import TicketABI from '../../../abi/TicketFactory.json';
 import CustomAvatar from '../../../components/CustomAvatar';
 import EditProfile from '../../../components/EditProfileModal';
