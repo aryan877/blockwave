@@ -1,6 +1,20 @@
-import { Avatar, AvatarBadge, Badge, VStack } from '@chakra-ui/react';
+import {
+  Avatar,
+  AvatarBadge,
+  Badge,
+  Box,
+  Image,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
+  useDisclosure,
+  VStack,
+} from '@chakra-ui/react';
 import { css } from '@emotion/react';
 import { chain, isEmpty } from 'lodash';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useAccount, useContractRead, useNetwork } from 'wagmi';
 import { chainAddresses } from '../abi/address';
@@ -16,11 +30,11 @@ interface CustomAvatarProps {
 }
 
 const hexagonStyle = css`
-clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
-border: '4px solid #34D399',
-backgroundRepeat: 'no-repeat',
-backgroundPosition: 'center center',
-backgroundSize: 'cover',
+  clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
+  border: '4px solid #34D399',
+  backgroundRepeat: 'no-repeat',
+  backgroundPosition: 'center center',
+  backgroundSize: 'cover',
 `;
 
 const CustomAvatar: React.FC<CustomAvatarProps> = ({
@@ -41,6 +55,8 @@ const CustomAvatar: React.FC<CustomAvatarProps> = ({
   });
   const [isNftHolder, SetIsNftHolder] = useState(false);
 
+  const router = useRouter();
+
   useEffect(() => {
     if (
       user &&
@@ -55,21 +71,65 @@ const CustomAvatar: React.FC<CustomAvatarProps> = ({
     }
   }, [useContractReadOwner, user]);
 
+  const {
+    isOpen: isOpenProfile,
+    onOpen: onOpenProfile,
+    onClose: onCloseProfile,
+  } = useDisclosure();
+
   return (
     <>
-      <Avatar
-        name={user?.name}
-        size={size}
-        mr={mr}
-        src={user.profileImage}
-        borderWidth={
-          isNftHolder ? borderWidthNFTImage : borderWidthRegularImage
-        }
-        borderStyle="solid"
-        borderColor={isNftHolder ? 'green.200' : 'white'}
-        borderRadius={isNftHolder ? 0 : 'full'}
-        css={isNftHolder && hexagonStyle}
-      />
+      {isOpenProfile && (
+        <Modal isOpen={isOpenProfile} onClose={onCloseProfile}>
+          <ModalOverlay />
+          <ModalContent
+            bgColor="gray.900"
+            borderWidth="1px"
+            maxH="60vh"
+            overflow="auto"
+            mx={4}
+          >
+            <ModalCloseButton />
+            <ModalBody>
+              <Image
+                src={user.profileImage}
+                fallbackSrc="/images/avatar-placeholder.png"
+                alt={`Profile picture of ${user.name}`}
+                borderRadius="full"
+                objectFit="contain"
+                width="100%"
+                height="auto"
+              />
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
+      <Box
+        onClick={() => {
+          if (router.pathname.startsWith('/profile/')) {
+            onOpenProfile();
+          }
+        }}
+      >
+        <Avatar
+          name={user?.name}
+          size={size}
+          mr={mr}
+          cursor="pointer"
+          src={user.profileImage}
+          borderWidth={
+            isNftHolder ? borderWidthNFTImage : borderWidthRegularImage
+          }
+          borderStyle="solid"
+          borderColor={isNftHolder ? 'green.200' : 'white'}
+          borderRadius={isNftHolder ? 0 : 'full'}
+          css={isNftHolder && hexagonStyle}
+        >
+          {showBadge && isNftHolder && (
+            <AvatarBadge boxSize="1em" bg="green.500" />
+          )}
+        </Avatar>
+      </Box>
       {isNftHolder && showBadge && (
         <Badge colorScheme="green">NFT Profile</Badge>
       )}
