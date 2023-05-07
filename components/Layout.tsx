@@ -103,7 +103,6 @@ const Layout = ({ children }: PropsWithChildren) => {
           },
         }
       );
-
       // update the state with the address and set loading to false
       setState((prev) => ({
         ...prev,
@@ -143,9 +142,9 @@ const Layout = ({ children }: PropsWithChildren) => {
 
   let app;
 
-  if (!state.loggedInAddress?.startsWith('0x')) {
+  if (status === 'connected' && !state.loggedInAddress?.startsWith('0x')) {
     app = <LoginPrompt signIn={signIn} />;
-  } else if (state.loggedInAddress && state.loggedInAddress?.startsWith('0x')) {
+  } else if (state.loggedInAddress?.startsWith('0x')) {
     app = (
       <Container mb="4" mt="20" maxWidth="6xl" width="full">
         <Flex>
@@ -177,7 +176,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         </Link>
         <Flex alignItems="center">
           {chain && (
-            <Text fontSize="md" mr={4}>
+            <Text fontSize="xs" mr={4}>
               {chain.name}
             </Text>
           )}
