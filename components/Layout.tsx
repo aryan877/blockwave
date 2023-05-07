@@ -45,6 +45,14 @@ const Layout = ({ children }: PropsWithChildren) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+        Pragma: 'no-cache',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'en-US,en;q=0.5',
       },
       body: JSON.stringify({}), // add data if needed
     });
@@ -100,9 +108,18 @@ const Layout = ({ children }: PropsWithChildren) => {
         {
           headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache',
+            Pragma: 'no-cache',
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+            Accept:
+              'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-US,en;q=0.5',
           },
         }
       );
+
       // update the state with the address and set loading to false
       setState((prev) => ({
         ...prev,
@@ -176,7 +193,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         </Link>
         <Flex alignItems="center">
           {chain && (
-            <Text fontSize="xs" mr={4}>
+            <Text fontSize="sm" mr={4}>
               {chain.name}
             </Text>
           )}

@@ -73,11 +73,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         // update the session if the signature is valid
         req.session.siwe = fields;
         await req.session.save();
+
         // create a new user or return a message if the user already exists
         await createUser(fields.address, res);
-        // res.status(200).json({ message: 'ok' });
       } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error in verify endpoint:', error);
+        return res.status(500).json({ message: 'Server error' });
       }
       break;
 

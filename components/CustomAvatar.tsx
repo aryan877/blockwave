@@ -124,11 +124,7 @@ const CustomAvatar: React.FC<CustomAvatarProps> = ({
           borderColor={isNftHolder ? 'green.200' : 'white'}
           borderRadius={isNftHolder ? 0 : 'full'}
           css={isNftHolder && hexagonStyle}
-        >
-          {showBadge && isNftHolder && (
-            <AvatarBadge boxSize="1em" bg="green.500" />
-          )}
-        </Avatar>
+        ></Avatar>
       </Box>
       {isNftHolder && showBadge && (
         <Badge colorScheme="green">NFT Profile</Badge>
