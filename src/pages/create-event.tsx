@@ -313,7 +313,7 @@ function CreateEvent() {
                 </Box>
                 <Slider
                   aria-label="zoom"
-                  colorScheme="purple"
+                  colorScheme="green"
                   value={zoom}
                   min={1}
                   max={3}
@@ -331,7 +331,7 @@ function CreateEvent() {
               </>
             </ModalBody>
             <ModalFooter>
-              <Button colorScheme="purple" onClick={handleCrop}>
+              <Button colorScheme="green" onClick={handleCrop}>
                 Apply Crop
               </Button>
             </ModalFooter>

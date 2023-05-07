@@ -1,4 +1,4 @@
-import { Chain, Provider } from '@wagmi/core';
+import { Chain } from '@wagmi/core';
 
 export const mantleWadsley: Chain = {
   id: 5001,

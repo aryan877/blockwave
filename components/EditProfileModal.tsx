@@ -359,7 +359,7 @@ function EditProfile({ isOpen, onClose, user, setUpdate }: any) {
                       setName(e.target.value);
                     }}
                   />
-                  <InputRightElement pointerEvents="none" children={<></>} />
+                  <InputRightElement pointerEvents="none" />
                 </InputGroup>
                 {nameError && (
                   <Text mt={2} color="red.500">
