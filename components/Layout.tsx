@@ -93,10 +93,10 @@ const Layout = ({ children }: PropsWithChildren) => {
       // Verify signature
       const verifyRes = await axios.post(
         '/api/verify',
-        {
+        JSON.stringify({
           message: message,
           signature: signature,
-        },
+        }),
         {
           headers: {
             'Content-Type': 'application/json',
