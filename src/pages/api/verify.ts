@@ -68,8 +68,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const fields = await siweMessage.validate(signature);
 
         // return an error if the signature is invalid
-        if (!isEqual(fields.nonce, req.session.nonce))
+        if (!isEqual(fields.nonce, req.session.nonce)) {
           return res.status(498).json({ message: 'Invalid nonce.' });
+        }
 
         // update the session if the signature is valid
         req.session.siwe = fields;
