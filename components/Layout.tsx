@@ -91,12 +91,13 @@ const Layout = ({ children }: PropsWithChildren) => {
       });
       if (!signature) throw Error('Signature is empty');
       // Verify signature
+      console.log(signature, message);
       const verifyRes = await axios.post(
         '/api/verify',
-        JSON.stringify({
+        {
           message: message,
           signature: signature,
-        }),
+        },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -177,7 +178,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         </Link>
         <Flex alignItems="center">
           {chain && (
-            <Text fontSize="sm" mr={4}>
+            <Text fontSize="md" mr={4}>
               {chain.name}
             </Text>
           )}

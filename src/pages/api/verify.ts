@@ -1,4 +1,5 @@
 import { withIronSessionApiRoute } from 'iron-session/next';
+import { isEqual } from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { SiweMessage } from 'siwe';
 import client from '../../../lib/sanityBackendClient';
@@ -67,8 +68,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         const fields = await siweMessage.validate(signature);
 
         // return an error if the signature is invalid
-        if (fields.nonce !== req.session.nonce)
-          return res.status(422).json({ message: 'Invalid nonce.' });
+        if (!isEqual(fields.nonce, req.session.nonce))
+          return res.status(498).json({ message: 'Invalid nonce.' });
 
         // update the session if the signature is valid
         req.session.siwe = fields;
