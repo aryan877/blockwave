@@ -91,7 +91,6 @@ const Layout = ({ children }: PropsWithChildren) => {
       });
       if (!signature) throw Error('Signature is empty');
       // Verify signature
-      console.log(signature, message);
       const verifyRes = await axios.post(
         '/api/verify',
         {
