@@ -129,16 +129,16 @@ const Layout = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     connect();
-    const handler = async () => {
-      try {
-        const res = await fetch('/api/me');
-        const json = await res.json();
-        setState((x) => ({ ...x, loggedInAddress: json.address }));
-      } catch (_error) {}
-    };
-    handler();
-    window.addEventListener('focus', handler);
-    return () => window.removeEventListener('focus', handler);
+    // const handler = async () => {
+    //   try {
+    //     const res = await fetch('/api/me');
+    //     const json = await res.json();
+    //     setState((x) => ({ ...x, loggedInAddress: json.address }));
+    //   } catch (_error) {}
+    // };
+    // handler();
+    // window.addEventListener('focus', handler);
+    // return () => window.removeEventListener('focus', handler);
   }, []);
 
   let app;
