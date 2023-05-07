@@ -129,23 +129,23 @@ const Layout = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     connect();
-    // const handler = async () => {
-    //   try {
-    //     const res = await fetch('/api/me');
-    //     const json = await res.json();
-    //     setState((x) => ({ ...x, loggedInAddress: json.address }));
-    //   } catch (_error) {}
-    // };
-    // handler();
-    // window.addEventListener('focus', handler);
-    // return () => window.removeEventListener('focus', handler);
+    const handler = async () => {
+      try {
+        const res = await fetch('/api/me');
+        const json = await res.json();
+        setState((x) => ({ ...x, loggedInAddress: json.address }));
+      } catch (_error) {}
+    };
+    handler();
+    window.addEventListener('focus', handler);
+    return () => window.removeEventListener('focus', handler);
   }, []);
 
   let app;
 
-  if (status === 'connected' && !state.loggedInAddress) {
+  if (status === 'connected' && !state.loggedInAddress.startsWith('0x')) {
     app = <LoginPrompt signIn={signIn} />;
-  } else if (state.loggedInAddress) {
+  } else if (state.loggedInAddress.startsWith('0x')) {
     app = (
       <Container mb="4" mt="20" maxWidth="6xl" width="full">
         <Flex>
