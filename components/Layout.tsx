@@ -12,7 +12,6 @@ import {
 } from '@chakra-ui/react';
 import { disconnect } from '@wagmi/core';
 import axios from 'axios';
-import { isEmpty } from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
@@ -42,6 +41,7 @@ const Layout = ({ children }: PropsWithChildren) => {
 
   const logout = async () => {
     router.replace('/');
+    setState({ loggedInAddress: '', loading: false, error: '' });
     await fetch('/api/logout', {
       method: 'POST',
       headers: {
@@ -49,24 +49,26 @@ const Layout = ({ children }: PropsWithChildren) => {
       },
       body: JSON.stringify({}), // add data if needed
     });
-    setState({});
   };
 
   const [state, setState] = useState<{
     loggedInAddress?: string;
     error?: any;
     loading?: boolean;
-  }>({});
+  }>({ loggedInAddress: '', error: '', loading: false });
   const router = useRouter();
 
   useEffect(() => {
-    if (!address?.includes('0x') || !state.loggedInAddress?.includes('0x')) {
+    if (
+      !state.loggedInAddress?.startsWith('0x') ||
+      !address?.startsWith('0x')
+    ) {
       return;
     }
     if (state.loggedInAddress !== address) {
       logout();
     }
-  }, [address, state.loggedInAddress]);
+  }, [address, state]);
 
   const { signMessageAsync } = useSignMessage();
 
@@ -143,9 +145,7 @@ const Layout = ({ children }: PropsWithChildren) => {
 
   let app;
 
-  if (status === 'connected' && isEmpty(state)) {
-    app = <LoginPrompt signIn={signIn} />;
-  } else if (state.loggedInAddress?.includes('0x')) {
+  if (state.loggedInAddress?.startsWith('0x') && status === 'connected') {
     app = (
       <Container mb="4" mt="20" maxWidth="6xl" width="full">
         <Flex>
@@ -154,6 +154,8 @@ const Layout = ({ children }: PropsWithChildren) => {
         </Flex>
       </Container>
     );
+  } else if (status === 'connected') {
+    app = <LoginPrompt signIn={signIn} />;
   } else if (status === 'disconnected') {
     app = <WalletNotConnected />;
   } else {
@@ -183,7 +185,7 @@ const Layout = ({ children }: PropsWithChildren) => {
           )}
           {status === 'connected' ? (
             //if connected check if logged in with ethereum or not
-            state.loggedInAddress ? (
+            state.loggedInAddress?.startsWith('0x') ? (
               //if logged in with ethereum then we show the logout button dropdown with wallet address in navbar
               <Menu>
                 <MenuButton
