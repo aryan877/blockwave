@@ -142,9 +142,9 @@ const Layout = ({ children }: PropsWithChildren) => {
 
   let app;
 
-  if (status === 'connected' && !state.loggedInAddress?.startsWith('0x')) {
+  if (status === 'connected' && !state.loggedInAddress?.includes('0x')) {
     app = <LoginPrompt signIn={signIn} />;
-  } else if (state.loggedInAddress?.startsWith('0x')) {
+  } else if (state.loggedInAddress?.includes('0x')) {
     app = (
       <Container mb="4" mt="20" maxWidth="6xl" width="full">
         <Flex>
