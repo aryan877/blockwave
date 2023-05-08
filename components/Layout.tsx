@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { disconnect } from '@wagmi/core';
 import axios from 'axios';
+import { isEmpty } from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
@@ -142,7 +143,7 @@ const Layout = ({ children }: PropsWithChildren) => {
 
   let app;
 
-  if (status === 'connected' && !state.loggedInAddress?.includes('0x')) {
+  if (status === 'connected' && isEmpty(state)) {
     app = <LoginPrompt signIn={signIn} />;
   } else if (state.loggedInAddress?.includes('0x')) {
     app = (
