@@ -172,6 +172,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         px={4}
         py={2}
         top="0"
+        bg="rgb(0,0,0,0.8)"
       >
         <Link href="/">
           <Image
