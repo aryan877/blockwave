@@ -172,17 +172,33 @@ const Layout = ({ children }: PropsWithChildren) => {
         px={4}
         py={2}
         top="0"
-        bg="rgba(0, 0, 0, 0.8)"
       >
         <Link href="/">
-          <Image src="/logo.png" alt="Logo" width={100} mx="auto" />
+          <Flex direction="row" alignItems="center">
+            <Image src="/logo.png" alt="Logo" width={12} mx="auto" mr={2} />
+            <Text
+              fontSize="md"
+              fontWeight="bold"
+              mr={4}
+              display={{ base: 'none', md: 'block' }}
+            >
+              Blockwave
+            </Text>
+          </Flex>
         </Link>
+
         <Flex alignItems="center">
           {chain && (
-            <Text fontSize="xs" mr={4}>
+            <Text
+              fontSize="sm"
+              fontWeight="semibold"
+              mr={4}
+              display={{ base: 'none', md: 'block' }}
+            >
               {chain.name}
             </Text>
           )}
+
           {status === 'connected' ? (
             //if connected check if logged in with ethereum or not
             state.loggedInAddress?.startsWith('0x') ? (
