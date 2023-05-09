@@ -124,6 +124,11 @@ function LoginPrompt({ signIn }: { signIn: any }) {
           <Text mt={2} fontSize="lg">
             Ride the Blockwave and connect your decentralized self to the world!
           </Text>
+          <Text mt={2} fontSize="lg" color="gray.500">
+            To use this app, please ensure that you are connected to either
+            Mantle Wadsley, Polygon Mumbai or Shardeum Sphinx blockchain
+            networks.
+          </Text>
         </Box>
       </Flex>{' '}
     </Box>
