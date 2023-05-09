@@ -38,10 +38,17 @@ const Layout = ({ children }: PropsWithChildren) => {
   });
   const { chain } = useNetwork();
   const { addNotification } = useNotification();
+  const router = useRouter();
+
+  const [state, setState] = useState<{
+    loggedInAddress?: string;
+    error?: any;
+    loading?: boolean;
+  }>({ loggedInAddress: '', error: '', loading: false });
 
   const logout = async () => {
     router.replace('/');
-    setState({ loggedInAddress: '', loading: false, error: '' });
+    setState({ loggedInAddress: '', loading: false, error: undefined });
     await fetch('/api/logout', {
       method: 'POST',
       headers: {
@@ -50,13 +57,6 @@ const Layout = ({ children }: PropsWithChildren) => {
       body: JSON.stringify({}), // add data if needed
     });
   };
-
-  const [state, setState] = useState<{
-    loggedInAddress?: string;
-    error?: any;
-    loading?: boolean;
-  }>({ loggedInAddress: '', error: '', loading: false });
-  const router = useRouter();
 
   useEffect(() => {
     if (

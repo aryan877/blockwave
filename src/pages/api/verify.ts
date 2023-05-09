@@ -9,7 +9,6 @@ interface NewUser {
   _type: 'users';
   _id: string;
   name: string;
-  isProfileImageNft: boolean;
   profileImage?: string;
   walletAddress: string;
 }
@@ -39,7 +38,6 @@ const createUser = async (address: string, res: NextApiResponse) => {
     _type: 'users',
     _id: address,
     name: `user #${count + 1}`,
-    isProfileImageNft: false,
     profileImage: `https://api.dicebear.com/6.x/adventurer/svg?seed=${address}`,
     walletAddress: address,
   };

@@ -47,7 +47,6 @@ interface User {
   _type: 'users';
   _id: string;
   name: string;
-  isProfileImageNft: boolean;
   profileImage?: string;
   walletAddress: string;
   _createdAt: Date;
