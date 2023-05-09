@@ -174,17 +174,13 @@ const Layout = ({ children }: PropsWithChildren) => {
         top="0"
       >
         <Link href="/">
-          <Flex direction="row" alignItems="center">
-            <Image src="/logo.png" alt="Logo" width={12} mx="auto" mr={2} />
-            <Text
-              fontSize="md"
-              fontWeight="bold"
-              mr={4}
-              display={{ base: 'none', md: 'block' }}
-            >
-              Blockwave
-            </Text>
-          </Flex>
+          <Image
+            src="/logo_w_text.png"
+            alt="Logo"
+            width={140}
+            mx="auto"
+            mr={2}
+          />
         </Link>
 
         <Flex alignItems="center">
