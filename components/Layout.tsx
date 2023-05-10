@@ -145,7 +145,11 @@ const Layout = ({ children }: PropsWithChildren) => {
 
   let app;
 
-  if (state.loggedInAddress?.startsWith('0x') && status === 'connected') {
+  if (
+    state.loggedInAddress?.startsWith('0x') &&
+    status === 'connected' &&
+    !state.loading
+  ) {
     app = (
       <Container mb="4" mt="20" maxWidth="6xl" width="full">
         <Flex>
@@ -154,7 +158,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         </Flex>
       </Container>
     );
-  } else if (status === 'connected') {
+  } else if (status === 'connected' && !state.loading) {
     app = <LoginPrompt signIn={signIn} />;
   } else if (status === 'disconnected') {
     app = <WalletNotConnected />;
