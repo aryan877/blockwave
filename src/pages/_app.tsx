@@ -1,5 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import type { AppProps } from 'next/app';
+import { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { polygonMumbai } from 'wagmi/chains';
@@ -25,7 +25,7 @@ const client = createClient({
 });
 
 const queryClient = new QueryClient();
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps }) {
   if (typeof window !== 'undefined') {
     localStorage.setItem('chakra-ui-color-mode', 'dark');
   }
