@@ -1,20 +1,20 @@
-# Use the official Node.js 16 LTS image as the base image
 FROM node:16-alpine
 
-# Set the working directory in the container to /app
+# Install Nginx
+RUN apk add --update nginx
+
+# Copy Nginx configuration file
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copy Next.js app
+COPY . /app
+
+# Install Next.js app dependencies
 WORKDIR /app
+RUN npm install
 
-# Copy the package.json and package-lock.json files to the container
-COPY package*.json ./
-
-# Install dependencies using npm
-RUN npm ci --only=production
-
-# Copy the rest of the application code to the container
-COPY . .
-
-# Build the Next.js application
+# Build Next.js app
 RUN npm run build
 
-# Set the command to start the Next.js application
-CMD ["npm", "start"]
+# Start Nginx and Next.js app
+CMD nginx && npm start
