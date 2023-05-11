@@ -1,8 +1,8 @@
-version: "3.9"
-services:
-  my-nextjs-app:
-    image: my-nextjs-app:latest
-    ports:
-      - "80:80"
-    env_file: 
-      - .env.local
+# version: "3.9"
+# services:
+#   my-nextjs-app:
+#     image: my-nextjs-app:latest
+#     ports:
+#       - "80:80"
+#     env_file: 
+#       - .env.local

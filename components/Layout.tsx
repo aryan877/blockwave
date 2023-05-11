@@ -139,8 +139,8 @@ const Layout = ({ children }: PropsWithChildren) => {
       } catch (_error) {}
     };
     handler();
-    // window.addEventListener('focus', handler);
-    // return () => window.removeEventListener('focus', handler);
+    window.addEventListener('focus', handler);
+    return () => window.removeEventListener('focus', handler);
   }, []);
 
   let app;

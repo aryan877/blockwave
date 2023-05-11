@@ -25,4 +25,4 @@ jobs:
         context: .
         file: Dockerfile
         push: true
-        tags: aryankumar877/blw:v2
+        tags: aryankumar877/the_blockwave:latest
