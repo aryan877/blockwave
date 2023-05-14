@@ -1,7 +1,5 @@
 🎉 Blockwave: Unleashing the Power of Social Media on the Blockchain
 
-🥳 We're thrilled to announce that Blockwave rocked the Spheron DAppathon on Devpost, winning an impressive 3rd prize of $1000 in the Mantle Track! Out of 180 outstanding projects, Blockwave stood out as a game-changer in the realm of social media apps. 🌟
-
 📱 Connect, Share, and Discover with Blockwave
 
 🌐 Blockwave is not your ordinary social media app. It's a revolutionary platform that combines the best of social networking with the power of blockchain technology. With a sleek Next.js frontend located in `/src/pages`, Blockwave offers a seamless and captivating user experience.
